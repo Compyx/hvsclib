@@ -30,8 +30,9 @@
 
 /** \brief  Enable debugging messages via hvsc_dbg()
  */
+#if 0
 #define HVSC_DEBUG
-
+#endif
 
 /** \brief  Error code for the library
  */

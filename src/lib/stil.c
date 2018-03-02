@@ -75,6 +75,22 @@ static const char *field_identifiers[] = {
 };
 
 
+/** \brief  List of field identifier display string for dumping
+ *
+ * This makes it more clear to distinguish parser errors (ie NAME: showing up
+ * in a field text)
+ */
+static const char *field_displays[] = {
+    "{ artist}",
+    "{ author}",
+    "{    bug}",     /* XXX: only used in BUGlist.txt */
+    "{comment}",
+    "{   name}",
+    "{  title}",
+    NULL
+};
+
+
 /** \brief  Determine is \a s hold a field identifier
  *
  * Checks against a list of know field identifiers.
@@ -632,7 +648,7 @@ bool hvsc_stil_read_entry(hvsc_stil_t *handle)
             return true;
         }
 
-        printf("line %ld: '%s'\n", handle->stil.lineno, line);
+        hvsc_dbg("line %ld: '%s'\n", handle->stil.lineno, line);
         if (!hvsc_stil_entry_add_line(handle, line)) {
             return false;
         }
@@ -836,6 +852,7 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
                     break;
 
                 default:
+                    line += 9;
                     break;
             }
 
@@ -890,20 +907,20 @@ void hvsc_stil_dump(hvsc_stil_t *handle)
     size_t t;   /* tune index, not its number */
     size_t f;   /* field index, not its type */
 
-    printf("\n\nFile: %s\n", handle->psid_path);
+    printf("\n\n{File: %s}\n", handle->psid_path);
     if (handle->sid_comment != NULL) {
-        printf("SID-wide comment:\n%s", handle->sid_comment);
+        printf("\n{SID-wide comment}\n%s", handle->sid_comment);
     }
 
-    printf("\nPer-tune info:\n\n");
+    printf("\n{Per-tune info}\n\n");
     for (t = 0; t < handle->blocks_used; t++) {
         hvsc_stil_block_t *block = handle->blocks[t];
-        printf("  Tune #%d\n", block->tune);
+        printf("  {#%d}\n", block->tune);
         for (f = 0; f < block->fields_used; f++) {
-            printf("    Field: %s\n", block->fields[f]->text);
+            printf("    %s %s\n",
+                    field_displays[block->fields[f]->type],
+                    block->fields[f]->text);
         }
         putchar('\n');
     }
 }
-
-

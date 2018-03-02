@@ -55,13 +55,13 @@ static bool create_md5_hash(const char *psid, unsigned char *digest)
     unsigned char *d;
 
     /* attempt to open file */
-    printf("reading '%s\n", psid);
+    hvsc_dbg("reading '%s\n", psid);
     size = hvsc_read_file(&data, psid);
     if (size < 0) {
         fprintf(stderr, "failed!\n");
         return false;
     }
-    printf("got %ld bytes\n", size);
+    hvsc_dbg("got %ld bytes\n", size);
 
     /*
      * calculate MD5 hash
@@ -199,20 +199,20 @@ char *hvsc_sldb_get_entry(const char *psid)
         return NULL;
     }
 
-    /* display hash */
-    printf("HASH = ");
+    /* generate text version of hash */
+    hvsc_dbg("HASH = ");
     for (i = 0; i < HVSC_DIGEST_SIZE; i++) {
-        printf("%02x", hash[i]);
+        hvsc_dbg("%02x", hash[i]);
         snprintf(hash_text + i * 2, 3, "%02x", hash[i]);
     }
-    putchar('\n');
+    hvsc_dbg("\n");
 
     /* parse SLDB */
     entry = find_sldb_entry(hash_text);
     if (entry == NULL) {
         return NULL;
     }
-    printf("Got it: %s\n", entry);
+    hvsc_dbg("Got it: %s\n", entry);
     return entry;
 }
 
