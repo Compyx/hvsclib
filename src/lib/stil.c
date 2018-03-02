@@ -43,8 +43,9 @@
 
 static void                 stil_field_init(hvsc_stil_field_t *field);
 static hvsc_stil_field_t *  stil_field_new(int type,
-                                           const char *text, size_t len,
-                                           long ts_from, long ts_to);
+                                           const char *text, size_t tlen,
+                                           long ts_from, long ts_to,
+                                           const char *album, size_t alen);
 static void                 stil_field_free(hvsc_stil_field_t *field);
 static hvsc_stil_field_t *  stil_field_dup(const hvsc_stil_field_t *field);
 
@@ -188,6 +189,31 @@ static bool stil_parse_timestamp(char *s, hvsc_stil_timestamp_t *ts,
 }
 
 
+/** \brief  Parse Album sub field
+ *
+ * \param[in]   s   string to parse for Album sub field
+ * \param[in]   len length of \a s
+ *
+ * \return  heap-allocated Album string or `NULL` on failure
+ */
+static char *stil_parse_album(const char *s, size_t len)
+{
+    /* put p at the char before ']' */
+    const char *p = s + len - 2;
+    const char *end = s + len -2;
+
+    char *album = NULL;
+
+    while (p >= s && *p != '[') {
+        p--;
+    }
+    if (*p == '[') {
+        /* found it */
+        album = hvsc_strndup(p + 1, (size_t)(end - p));
+    }
+    return album;
+}
+
 
 /*
  * STIL field functions
@@ -203,6 +229,7 @@ static void stil_field_init(hvsc_stil_field_t *field)
     field->text = NULL;
     field->timestamp.from = -1;
     field->timestamp.to = -1;
+    field->album = NULL;
 }
 
 
@@ -212,14 +239,18 @@ static void stil_field_init(hvsc_stil_field_t *field)
  *
  * \param[in]   type    field type
  * \param[in]   text    field text
- * \param[in]   len     number of bytes to copy from \a text
+ * \param[in]   tlen    number of bytes to copy from \a text
  * \param[in]   ts_from timestamp 'from' member
  * \param[in]   ts_to   timestamp 'to' member
+ * \param[in]   album   cover info
+ * \param[in]   alen    number of bytes to copy from \a album
  *
  * \return  new STIL field object or `NULL` on failure
  */
-static hvsc_stil_field_t *stil_field_new(int type, const char *text, size_t len,
-                                         long ts_from, long ts_to)
+static hvsc_stil_field_t *stil_field_new(int type,
+                                         const char *text, size_t tlen,
+                                         long ts_from, long ts_to,
+                                         const char *album, size_t alen)
 {
     hvsc_stil_field_t *field = malloc(sizeof *field);
 
@@ -230,11 +261,19 @@ static hvsc_stil_field_t *stil_field_new(int type, const char *text, size_t len,
         field->type = type;
         field->timestamp.from = ts_from;
         field->timestamp.to = ts_to;
-        field->text = hvsc_strndup(text, len);
+        field->text = hvsc_strndup(text, tlen);
         if (field->text == NULL) {
             stil_field_free(field);
             field = NULL;
         }
+        if (album != NULL && *album != '\0') {
+            field->album = hvsc_strndup(album, alen);
+            if (field->album == NULL) {
+                stil_field_free(field);
+                return NULL;
+            }
+        }
+
     }
     return field;
 }
@@ -248,6 +287,9 @@ static void stil_field_free(hvsc_stil_field_t *field)
 {
     if (field->text != NULL) {
         free(field->text);
+    }
+    if (field->album != NULL) {
+        free(field->album);
     }
     free(field);
 }
@@ -311,8 +353,8 @@ static hvsc_stil_block_t *stil_block_new(void)
 static hvsc_stil_field_t *stil_field_dup(const hvsc_stil_field_t *field)
 {
     return stil_field_new(field->type, field->text, strlen(field->text),
-            field->timestamp.from,
-            field->timestamp.to);
+            field->timestamp.from, field->timestamp.to,
+            field->album, field->album != NULL ? strlen(field->album) : 0);
 }
 
 
@@ -754,6 +796,8 @@ static bool stil_parser_init(hvsc_stil_parser_state_t *parser,
     parser->ts.from = -1;
     parser->ts.to = -1;
     parser->linelen = 0;
+    parser->album = NULL;
+    parser->album_len = 0;
 
     /* add block for tune #1 */
     parser->block = stil_block_new();
@@ -776,6 +820,10 @@ static void stil_parser_free(hvsc_stil_parser_state_t *parser)
 {
     if (parser->block != NULL) {
         stil_block_free(parser->block);
+    }
+    if (parser->album != NULL) {
+        free(parser->album);
+        parser->album = NULL;
     }
 }
 
@@ -811,6 +859,7 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
 
         state.ts.from = -1;
         state.ts.to = -1;
+        state.album = NULL;
 
         /* to avoid unitialized warning later on (it isn't uinitialized) */
         comment = NULL;
@@ -910,7 +959,31 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
                         }
                     }
 
-                    /* TODO: check for 'Album' field: [from ...] */
+                    /* check for 'Album' field: [from ...] */
+                    if (line[state.linelen - 1] == ']') {
+                        char *album;
+                        hvsc_dbg("found possible album\n");
+
+                        /*
+                         * stil_parse_album() can return NULL on OOM, so set
+                         * err code to 0 here to catch it later
+                         * (Yes, I know, it's a design flaw, I'll fix that)
+                         */
+                        hvsc_errno = 0;
+
+                        album = stil_parse_album(line, state.linelen);
+                        if (album != NULL) {
+                            hvsc_dbg("got album: '%s'\n", album);
+                            state.album = album;
+                            state.album_len = strlen(album);
+
+                            /* adjust line len (+3 for '[', ']' and space */
+                            state.linelen -= (state.album_len + 3);
+                        } else if (hvsc_errno != 0) {
+                            return false;
+                        }
+                    }
+
                     break;
 
                 /* Other fields without special meaning/sub fields */
@@ -923,11 +996,14 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
 
             /*
              * Add line to block
-             * TODO: parse out sub fields and timestamps [DONE]
              */
             if (state.tune > 0) {
                 hvsc_dbg("Adding '%s'\n", line);
-                state.field = stil_field_new(type, line, state.linelen, state.ts.from, state.ts.to);
+                state.field = stil_field_new(
+                        type,
+                        line, state.linelen,
+                        state.ts.from, state.ts.to,
+                        state.album, state.album_len);
                 if (state.field == NULL) {
                     hvsc_dbg("failed to allocate field object\n");
                     return false;
@@ -941,6 +1017,11 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
                 if (type == HVSC_FIELD_COMMENT) {
                     free(comment);
                     comment = NULL;
+                }
+                /* free album, if present */
+                if (state.album != NULL) {
+                    free(state.album);
+                    state.album = NULL;
                 }
             } else {
                 /* got all the SID-wide stuff, now add the rest to per-tune
@@ -997,6 +1078,10 @@ void hvsc_stil_dump(hvsc_stil_t *handle)
                     printf("      {timestamp} %ld:%02ld-%ld:%02ld\n",
                             from / 60, from % 60, to / 60, to % 60);
                 }
+            }
+            /* do we have an album? */
+            if (block->fields[f]->album != NULL) {
+                printf("      {    album} %s\n", block->fields[f]->album);
             }
         }
         putchar('\n');

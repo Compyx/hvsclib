@@ -126,6 +126,7 @@ typedef struct hvsc_stil_field_s {
     hvsc_stil_field_type_t      type;       /**< field type */
     char *                      text;       /**< field content */
     hvsc_stil_timestamp_t       timestamp;  /**< timestamp (optional) */
+    char *                      album;      /**< cover info (optional) */
 } hvsc_stil_field_t;
 
 
@@ -181,6 +182,9 @@ typedef struct hvsc_stil_parser_state_s {
                                              line after parsing out the
                                              optional sub fields
                                              (timestamp, album) */
+
+    char *                  album;      /**< album/cover string */
+    size_t                  album_len;  /**< length of album string */
 } hvsc_stil_parser_state_t;
 
 
