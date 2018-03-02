@@ -89,4 +89,9 @@ bool        hvsc_string_is_empty(const char *s);
 bool        hvsc_string_is_comment(const char *s);
 long        hvsc_parse_simple_timestamp(char *t, char **endptr);
 
+
+int         hvsc_get_field_type(const char *s);
+
+const char *hvsc_get_field_display(int type);
+
 #endif

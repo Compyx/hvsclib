@@ -84,7 +84,9 @@ typedef enum hvsc_stil_field_type_e {
     HVSC_FIELD_BUG,             /**< Bug note (only in BUGlist.txt) */
     HVSC_FIELD_COMMENT,         /**< Comment */
     HVSC_FIELD_NAME,            /**< (sub)tune name */
-    HVSC_FIELD_TITLE            /**< title of the cover */
+    HVSC_FIELD_TITLE,           /**< title of the cover */
+
+    HVSC_FIELD_TYPE_COUNT       /**< number of valid field types */
 } hvsc_stil_field_type_t;
 
 

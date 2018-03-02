@@ -61,61 +61,6 @@ static bool                 stil_parse_timestamp(char *s,
                                                  char **endptr);
 
 
-/** \brief  List of field indentifiers
- *
- * \see hvsc_stil_field_type_t
- */
-static const char *field_identifiers[] = {
-    " ARTIST:",
-    " AUTHOR:",
-    "    BUG:",     /* XXX: only used in BUGlist.txt */
-    "COMMENT:",
-    "   NAME:",
-    "  TITLE:",
-    NULL
-};
-
-
-/** \brief  List of field identifier display string for dumping
- *
- * This makes it more clear to distinguish parser errors (ie NAME: showing up
- * in a field text)
- */
-static const char *field_displays[] = {
-    "{ artist}",
-    "{ author}",
-    "{    bug}",     /* XXX: only used in BUGlist.txt */
-    "{comment}",
-    "{   name}",
-    "{  title}",
-    NULL
-};
-
-
-/** \brief  Determine is \a s hold a field identifier
- *
- * Checks against a list of know field identifiers.
- *
- * \param[in]   s   string to parse
- *
- * \return  field type or -1 (HVSC_FIELD_INVALID) when not found
- *
- * \note    returning -1 does not indicate failure, just that \a s doesn't
- *          contain a field indentifier (ie normal text for a comment or so)
- */
-static int stil_get_field_type(const char *s)
-{
-    int i = 0;
-
-    while (field_identifiers[i] != NULL) {
-        int result = strncmp(s, field_identifiers[i], 8);
-        if (result == 0) {
-            return i;   /* got it */
-        }
-        i++;
-    }
-    return HVSC_FIELD_INVALID;
-}
 
 
 /** \brief  Parse tune number from string \a s
@@ -835,6 +780,8 @@ static void stil_parser_free(hvsc_stil_parser_state_t *parser)
  * \param[in,out]   handle  STIL entry handle
  *
  * \return  bool
+ *
+ * \todo    Refactor, this function is too long and complex
  */
 bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
 {
@@ -891,7 +838,7 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
 
         } else {
             /* must be a field */
-            type = stil_get_field_type(line);
+            type = hvsc_get_field_type(line);
             hvsc_dbg("Got field type %d\n", type);
 #if 0
             line += 9;
@@ -1064,7 +1011,7 @@ void hvsc_stil_dump(hvsc_stil_t *handle)
         printf("  {#%d}\n", block->tune);
         for (f = 0; f < block->fields_used; f++) {
             printf("    %s %s\n",
-                    field_displays[block->fields[f]->type],
+                    hvsc_get_field_display(block->fields[f]->type),
                     block->fields[f]->text);
             /* do we have a valid timestamp ? */
             if (block->fields[f]->timestamp.from >= 0) {
@@ -1081,7 +1028,7 @@ void hvsc_stil_dump(hvsc_stil_t *handle)
             }
             /* do we have an album? */
             if (block->fields[f]->album != NULL) {
-                printf("      {    album} %s\n", block->fields[f]->album);
+                printf("           {album} %s\n", block->fields[f]->album);
             }
         }
         putchar('\n');

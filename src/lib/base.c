@@ -61,6 +61,37 @@ static const char *hvsc_err_messages[HVSC_ERR_CODE_COUNT] = {
 };
 
 
+/** \brief  List of field indentifiers
+ *
+ * \see hvsc_stil_field_type_t
+ */
+static const char *field_identifiers[] = {
+    " ARTIST:",
+    " AUTHOR:",
+    "    BUG:",     /* XXX: only used in BUGlist.txt */
+    "COMMENT:",
+    "   NAME:",
+    "  TITLE:",
+    NULL
+};
+
+
+/** \brief  List of field identifier display string for dumping
+ *
+ * This makes it more clear to distinguish parser errors (ie NAME: showing up
+ * in a field text)
+ */
+static const char *field_displays[] = {
+    " {artist}",
+    " {author}",
+    "    {bug}",     /* XXX: only used in BUGlist.txt */
+    "{comment}",
+    "   {name}",
+    "  {title}",
+    NULL
+};
+
+
 /** \brief  Error message to return for invalid error codes
  */
 static const char *invalid_err_msg = "<unknown error code>";
@@ -644,4 +675,44 @@ long hvsc_parse_simple_timestamp(char *t, char **endptr)
     /* done */
     *endptr = t;
     return m * 60 + s;
+}
+
+
+
+/** \brief  Determine is \a s hold a field identifier
+ *
+ * Checks against a list of know field identifiers.
+ *
+ * \param[in]   s   string to parse
+ *
+ * \return  field type or -1 (HVSC_FIELD_INVALID) when not found
+ *
+ * \note    returning -1 does not indicate failure, just that \a s doesn't
+ *          contain a field indentifier (ie normal text for a comment or so)
+ */
+int hvsc_get_field_type(const char *s)
+{
+    int i = 0;
+
+    while (field_identifiers[i] != NULL) {
+        int result = strncmp(s, field_identifiers[i], 8);
+        if (result == 0) {
+            return i;   /* got it */
+        }
+        i++;
+    }
+    return HVSC_FIELD_INVALID;
+}
+
+
+/** \brief  Get display string for field \a type
+ *
+ * \return  string
+ */
+const char *hvsc_get_field_display(int type)
+{
+    if (type < 0 || type >= HVSC_FIELD_TYPE_COUNT) {
+        return "<invalid>";
+    }
+    return field_displays[type];
 }
