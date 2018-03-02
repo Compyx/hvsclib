@@ -170,11 +170,17 @@ typedef struct hvsc_stil_s {
 /** \brief  STIL parser state
  */
 typedef struct hvsc_stil_parser_state_s {
-    hvsc_stil_t *       handle;     /**< STIL handle */
-    hvsc_stil_field_t * field;      /**< STIL field object */
-    int                 tune;       /**< current tune number */
-    size_t              lineno;     /**< line number in the STIL text buffer */
-    hvsc_stil_block_t * block;      /**< STIL block */
+    hvsc_stil_t *           handle;     /**< STIL handle */
+    hvsc_stil_field_t *     field;      /**< STIL field object */
+    int                     tune;       /**< current tune number */
+    size_t                  lineno;     /**< line number in STIL text buffer */
+    hvsc_stil_block_t *     block;      /**< temporary STIL block */
+
+    hvsc_stil_timestamp_t   ts;         /**< temporary timestamp object */
+    size_t                  linelen;    /**< remaining length of the current
+                                             line after parsing out the
+                                             optional sub fields
+                                             (timestamp, album) */
 } hvsc_stil_parser_state_t;
 
 

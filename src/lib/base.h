@@ -74,6 +74,7 @@ extern char *hvsc_bugs_path;
 const char *hvsc_strerror(int n);
 void        hvsc_perror(const char *prefix);
 char *      hvsc_strdup(const char *s);
+char *      hvsc_strndup(const char *s, size_t n);
 char *      hvsc_paths_join(const char *p1, const char *p2);
 long        hvsc_read_file(unsigned char **dest, const char *path);
 bool        hvsc_set_paths(const char *path);

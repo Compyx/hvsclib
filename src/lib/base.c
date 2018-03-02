@@ -375,6 +375,31 @@ long hvsc_read_file(unsigned char **dest, const char *path)
 }
 
 
+/** \brief  Copy at most \a n chars of \a s
+ *
+ * This function appends a nul-byte after \a n bytes.
+ *
+ * \param[in]   s   string to copy
+ * \param[in]   n   maximum number of chars to copy
+ *
+ * \return  heap-allocated, nul-terminated copy of \a n bytes of \a s, or
+ *          `NULL` on failure
+ */
+char *hvsc_strndup(const char *s, size_t n)
+{
+    char *t = calloc(n + 1, 1);
+
+    if (t == NULL) {
+        hvsc_errno = HVSC_ERR_OOM;
+        return NULL;
+    }
+
+    strncpy(t, s, n);
+    return t;
+}
+
+
+
 /** \brief  Create heap-allocated copy of \a s
  *
  * \param[in]   s   string to copy

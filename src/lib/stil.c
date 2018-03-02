@@ -43,7 +43,7 @@
 
 static void                 stil_field_init(hvsc_stil_field_t *field);
 static hvsc_stil_field_t *  stil_field_new(int type,
-                                           const char *text,
+                                           const char *text, size_t len,
                                            long ts_from, long ts_to);
 static void                 stil_field_free(hvsc_stil_field_t *field);
 static hvsc_stil_field_t *  stil_field_dup(const hvsc_stil_field_t *field);
@@ -208,14 +208,17 @@ static void stil_field_init(hvsc_stil_field_t *field)
 
 /** \brief  Allocate a new STIL field object
  *
+ * The copy of \a text will be nul-terminated.
+ *
  * \param[in]   type    field type
  * \param[in]   text    field text
+ * \param[in]   len     number of bytes to copy from \a text
  * \param[in]   ts_from timestamp 'from' member
  * \param[in]   ts_to   timestamp 'to' member
  *
  * \return  new STIL field object or `NULL` on failure
  */
-static hvsc_stil_field_t *stil_field_new(int type, const char *text,
+static hvsc_stil_field_t *stil_field_new(int type, const char *text, size_t len,
                                          long ts_from, long ts_to)
 {
     hvsc_stil_field_t *field = malloc(sizeof *field);
@@ -227,7 +230,7 @@ static hvsc_stil_field_t *stil_field_new(int type, const char *text,
         field->type = type;
         field->timestamp.from = ts_from;
         field->timestamp.to = ts_to;
-        field->text = hvsc_strdup(text);
+        field->text = hvsc_strndup(text, len);
         if (field->text == NULL) {
             stil_field_free(field);
             field = NULL;
@@ -307,7 +310,8 @@ static hvsc_stil_block_t *stil_block_new(void)
  */
 static hvsc_stil_field_t *stil_field_dup(const hvsc_stil_field_t *field)
 {
-    return stil_field_new(field->type, field->text, field->timestamp.from,
+    return stil_field_new(field->type, field->text, strlen(field->text),
+            field->timestamp.from,
             field->timestamp.to);
 }
 
@@ -747,6 +751,9 @@ static bool stil_parser_init(hvsc_stil_parser_state_t *parser,
     parser->tune = 0;
     parser->lineno = 0;
     parser->field = NULL;
+    parser->ts.from = -1;
+    parser->ts.to = -1;
+    parser->linelen = 0;
 
     /* add block for tune #1 */
     parser->block = stil_block_new();
@@ -797,20 +804,19 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
 
     while (state.lineno < state.handle->entry_bufused) {
         char *line = handle->entry_buffer[state.lineno];
-        size_t len;
         char *comment;
         int type;
         int num;
         char *t;
-        hvsc_stil_timestamp_t ts;
 
-        ts.from = -1;
-        ts.to = -1;
+        state.ts.from = -1;
+        state.ts.to = -1;
 
         /* to avoid unitialized warning later on (it isn't uinitialized) */
         comment = NULL;
 
         hvsc_dbg("parsing:\n%s\n", line);
+        state.linelen = strlen(line);
 
         /* tune number? */
         num = stil_parse_tune_number(line);
@@ -838,6 +844,10 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
             /* must be a field */
             type = stil_get_field_type(line);
             hvsc_dbg("Got field type %d\n", type);
+#if 0
+            line += 9;
+            state.linelen -= 9;
+#endif
 
             switch (type) {
                 /* COMMENT: field */
@@ -852,6 +862,7 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
                     } else {
                         /* normal per-tune comment */
                         line = comment;
+                        state.linelen = strlen(comment);
                     }
                     /* comment parsing 'ate' the first non-comment line, so
                      * adjust parser state */
@@ -860,15 +871,15 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
 
                 /* TITLE: field */
                 case HVSC_FIELD_TITLE:
+                    line += 9;
+                    state.linelen -= 9;
                     /* check for timestamp */
-                    len = strlen(line);
                     /* find closing ')' at end of line */
-                    if (len > 6 && line[len - 1] == ')') {
+                    if (state.linelen > 6 && line[state.linelen - 1] == ')') {
                         hvsc_dbg("possible TIMESTAMP\n");
-                        line += 9;
 
                         /* find opening '(' */
-                        t = line + len - 1;
+                        t = line + state.linelen - 1;
                         while (t >= line && *t != '(') {
                             t--;
                         }
@@ -878,7 +889,7 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
                         } else {
                             char *endptr;
 
-                            if (!stil_parse_timestamp(t + 1, &ts, &endptr)) {
+                            if (!stil_parse_timestamp(t + 1, &(state.ts), &endptr)) {
                                 /*
                                  * Some lines contain strings like "(lyrics)"
                                  * or "(music)", so don't trigger a parser
@@ -887,8 +898,14 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
                                 hvsc_dbg("invalid TIMESTAMP, ignoring\n");
                             } else {
                                 hvsc_dbg("got TIMESTAMP: %ld-%ld\n",
-                                        ts.from, ts.to);
-                                /* TODO: adjust line: strip timestamp text */
+                                        state.ts.from, state.ts.to);
+                                /*
+                                 * Adjust line: strip timestamp text, this
+                                 * assumes a single space between the timestamp
+                                 * '(' starting char and the rest of the text.
+                                 * So perhaps do a rtrim() on the line?
+                                 */
+                                state.linelen = (size_t)(t - line) - 1;
                             }
                         }
                     }
@@ -900,16 +917,17 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
                 default:
                     /* don't copy the first nine chars (field ident + space) */
                     line += 9;
+                    state.linelen -= 9;
                     break;
             }
 
             /*
              * Add line to block
-             * TODO: parse out sub fields and timestamps
+             * TODO: parse out sub fields and timestamps [DONE]
              */
             if (state.tune > 0) {
                 hvsc_dbg("Adding '%s'\n", line);
-                state.field = stil_field_new(type, line, ts.from, ts.to);
+                state.field = stil_field_new(type, line, state.linelen, state.ts.from, state.ts.to);
                 if (state.field == NULL) {
                     hvsc_dbg("failed to allocate field object\n");
                     return false;

@@ -202,10 +202,14 @@ char *hvsc_sldb_get_entry(const char *psid)
     /* generate text version of hash */
     hvsc_dbg("HASH = ");
     for (i = 0; i < HVSC_DIGEST_SIZE; i++) {
-        hvsc_dbg("%02x", hash[i]);
+#ifdef HVSC_DEBUG
+        printf("%02x", hash[i]);
+#endif
         snprintf(hash_text + i * 2, 3, "%02x", hash[i]);
     }
-    hvsc_dbg("\n");
+#ifdef HVSC_DEBUG
+    putchar('\n');
+#endif
 
     /* parse SLDB */
     entry = find_sldb_entry(hash_text);
