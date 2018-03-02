@@ -9,7 +9,7 @@ CFLAGS = -Wall -Wextra -pedantic -std=c99 -Wshadow -Wpointer-arith \
 	 -Wcast-qual -Wcast-align -Wstrict-prototypes -Wmissing-prototypes \
 	 -Wswitch -Wswitch-default -Wuninitialized -Wconversion \
 	 -Wredundant-decls -Wnested-externs -Wunreachable-code \
-	 -O3 -g -Isrc -Isrc/lib
+	 -O3 -g -Isrc -Isrc/lib -DHVSC_DEBUG
 
 LDFLAGS = -lgcrypt
 

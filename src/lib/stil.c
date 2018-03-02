@@ -796,10 +796,16 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
     }
 
     while (state.lineno < state.handle->entry_bufused) {
-        const char *line = handle->entry_buffer[state.lineno];
+        char *line = handle->entry_buffer[state.lineno];
+        size_t len;
         char *comment;
         int type;
         int num;
+        char *t;
+        hvsc_stil_timestamp_t ts;
+
+        ts.from = -1;
+        ts.to = -1;
 
         /* to avoid unitialized warning later on (it isn't uinitialized) */
         comment = NULL;
@@ -834,6 +840,7 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
             hvsc_dbg("Got field type %d\n", type);
 
             switch (type) {
+                /* COMMENT: field */
                 case HVSC_FIELD_COMMENT:
                     comment = stil_parse_comment(&state);
                     if (comment == NULL) {
@@ -851,7 +858,47 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
                     state.lineno--;
                     break;
 
+                /* TITLE: field */
+                case HVSC_FIELD_TITLE:
+                    /* check for timestamp */
+                    len = strlen(line);
+                    /* find closing ')' at end of line */
+                    if (len > 6 && line[len - 1] == ')') {
+                        hvsc_dbg("possible TIMESTAMP\n");
+                        line += 9;
+
+                        /* find opening '(' */
+                        t = line + len - 1;
+                        while (t >= line && *t != '(') {
+                            t--;
+                        }
+                        if (t == line) {
+                            /* nope */
+                            hvsc_dbg("no closing '(') found, ignoring\n");
+                        } else {
+                            char *endptr;
+
+                            if (!stil_parse_timestamp(t + 1, &ts, &endptr)) {
+                                /*
+                                 * Some lines contain strings like "(lyrics)"
+                                 * or "(music)", so don't trigger a parser
+                                 * error, just ignore
+                                 */
+                                hvsc_dbg("invalid TIMESTAMP, ignoring\n");
+                            } else {
+                                hvsc_dbg("got TIMESTAMP: %ld-%ld\n",
+                                        ts.from, ts.to);
+                                /* TODO: adjust line: strip timestamp text */
+                            }
+                        }
+                    }
+
+                    /* TODO: check for 'Album' field: [from ...] */
+                    break;
+
+                /* Other fields without special meaning/sub fields */
                 default:
+                    /* don't copy the first nine chars (field ident + space) */
                     line += 9;
                     break;
             }
@@ -862,7 +909,7 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
              */
             if (state.tune > 0) {
                 hvsc_dbg("Adding '%s'\n", line);
-                state.field = stil_field_new(type, line, -1, -1);
+                state.field = stil_field_new(type, line, ts.from, ts.to);
                 if (state.field == NULL) {
                     hvsc_dbg("failed to allocate field object\n");
                     return false;
@@ -909,7 +956,7 @@ void hvsc_stil_dump(hvsc_stil_t *handle)
 
     printf("\n\n{File: %s}\n", handle->psid_path);
     if (handle->sid_comment != NULL) {
-        printf("\n{SID-wide comment}\n%s", handle->sid_comment);
+        printf("\n{SID-wide comment}\n%s\n", handle->sid_comment);
     }
 
     printf("\n{Per-tune info}\n\n");
@@ -920,6 +967,19 @@ void hvsc_stil_dump(hvsc_stil_t *handle)
             printf("    %s %s\n",
                     field_displays[block->fields[f]->type],
                     block->fields[f]->text);
+            /* do we have a valid timestamp ? */
+            if (block->fields[f]->timestamp.from >= 0) {
+                long from = block->fields[f]->timestamp.from;
+                long to = block->fields[f]->timestamp.to;
+
+                if (to < 0) {
+                    printf("      {timestamp} %ld:%02ld\n",
+                            from / 60, from % 60);
+                } else {
+                    printf("      {timestamp} %ld:%02ld-%ld:%02ld\n",
+                            from / 60, from % 60, to / 60, to % 60);
+                }
+            }
         }
         putchar('\n');
     }
