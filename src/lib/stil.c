@@ -32,6 +32,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "hvsc_defs.h"
 #include "base.h"
 
 #include "stil.h"
@@ -1034,3 +1035,85 @@ void hvsc_stil_dump(hvsc_stil_t *handle)
         putchar('\n');
     }
 }
+
+
+/** \brief  Get a STIL entry for \a tune
+ *
+ * Gets a STIL entry for \a tune from \a handle and store it in \a entry.
+ * Please note that both hvsc_read_entry() and hvsc_parse_entry() need yo have
+ * been successfully called in order for this function to succeed.
+ * The data in \a entry should not be manipulated or freed.
+ *
+ * \param[in]   handle  STIL handle
+ * \param[out]  entry   STIL tune entry
+ * \param[in]   tune    tune number (1-256)
+ *
+ * \return  bool
+ */
+bool hvsc_stil_get_tune_entry(const hvsc_stil_t *handle,
+                              hvsc_stil_tune_entry_t *entry,
+                              int tune)
+{
+    size_t n = 0;
+
+    if (handle->blocks == NULL) {
+        hvsc_errno = HVSC_ERR_INVALID;
+        return false;
+    }
+
+    for (n = 0; n < handle->blocks_used; n++) {
+        if (handle->blocks[n]->tune == tune) {
+            const hvsc_stil_block_t *block = handle->blocks[n];
+            hvsc_dbg("Got entry for tune #%d\n", tune);
+            entry->tune = block->tune;
+            entry->fields = block->fields;
+            entry->field_count = block->fields_used;
+            return true;
+        }
+    }
+    hvsc_dbg("Could not find entry for tune #%d\n", tune);
+    hvsc_errno = HVSC_ERR_NOT_FOUND;
+    return false;
+}
+
+
+/** \brief  Dump STIL tune \a entry on stdout
+ *
+ * This functions requires hvsc_stil_get_tune_entry() to be called to populate
+ * the \a entry beforehand.
+ *
+ * \param[in]   entry   STIL tune entry
+ */
+void hvsc_stil_dump_tune_entry(const hvsc_stil_tune_entry_t *entry)
+{
+    size_t f;
+
+    for (f = 0; f < entry->field_count; f++) {
+        const hvsc_stil_field_t *field = entry->fields[f];
+
+        /* print field identifier and content */
+        printf("%s %s\n",
+                hvsc_get_field_display(field->type),
+                field->text);
+
+        /* check for timestamp sub field */
+        if (field->timestamp.from >= 0) {
+            hvsc_stil_timestamp_t ts = field->timestamp;
+            if (ts.to < 0) {
+                printf("  {timestamp} %ld:%02ld\n",
+                        ts.from / 60, ts.from % 60);
+            } else {
+                printf("  {timestamp} %ld:%02ld-%ld:%02ld\n",
+                        ts.from / 60, ts.from % 60, ts.to / 60, ts.to % 60);
+            }
+        }
+
+        /* check for album sub field */
+        if (field->album != NULL) {
+            printf("       {album} %s\n", field->album);
+        }
+    }
+}
+
+
+

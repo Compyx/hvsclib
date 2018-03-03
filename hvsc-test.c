@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
 
     hvsc_stil_t stil;
     hvsc_bugs_t bugs;
+    hvsc_stil_tune_entry_t tune_entry;
 
     int major;
     int minor;
@@ -109,7 +110,7 @@ int main(int argc, char *argv[])
 
         printf("Parsing STIL entry text\n");
         if (!hvsc_stil_parse_entry(&stil)) {
-            hvsc_perror(argv[0]);
+            hvsc_perror("Failed");
             hvsc_stil_close(&stil);
             hvsc_exit();
             return EXIT_FAILURE;
@@ -117,8 +118,20 @@ int main(int argc, char *argv[])
 
         printf("Dumping parsed data:\n");
         hvsc_stil_dump(&stil);
+
+        /* test hvsc_stil_get_tune_entry() */
+        printf("\nTesting hvsc_get_tune_entry(3):\n");
+        if (!hvsc_stil_get_tune_entry(&stil, &tune_entry, 3)) {
+            hvsc_perror("Failed");
+        } else {
+            printf("OK! Calling hvsc_stil_dump_tune_entry()\n\n");
+            hvsc_stil_dump_tune_entry(&tune_entry);
+        }
+
         printf("Closing STIL\n");
         hvsc_stil_close(&stil);
+
+
     }
 
     printf("\n\nTesting HVSC BUGlist\n\n");

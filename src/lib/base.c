@@ -57,7 +57,8 @@ static const char *hvsc_err_messages[HVSC_ERR_CODE_COUNT] = {
     "file too large error",
     "libgcrypt error",
     "malformed timestamp",
-    "object not found"
+    "object not found",
+    "invalid data or operation",
 };
 
 

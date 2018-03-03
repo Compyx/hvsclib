@@ -47,14 +47,23 @@
 #define _xstr(s) _xstr1(s)
 
 /** \brief  Library version number major
+ *
+ * This number indicates API version, when this number changes it means there
+ * are incompatible changes in the API.
  */
 #define HVSC_LIB_VERSION_MAJ    0
 
 /** \brief  Library version number minor
+ *
+ * This number indicates 'feature level', when this number changes, a feature
+ * was added.
  */
 #define HVSC_LIB_VERSION_MIN    1
 
 /** \brief  Library version number revision
+ *
+ * This is the revision number, this indicates bug fixes/optimizations that do
+ * not change the API, nor add functionality.
  */
 #define HVSC_LIB_VERSION_REV    0
 
@@ -100,6 +109,7 @@ typedef enum hvsc_err_e {
     HVSC_ERR_GCRYPT,            /**< error in gcrypt library */
     HVSC_ERR_TIMESTAMP,         /**< error parsing a timestamp */
     HVSC_ERR_NOT_FOUND,         /**< entry/tune not found */
+    HVSC_ERR_INVALID,           /**< invalid data or operation detected */
 
     HVSC_ERR_CODE_COUNT         /**< number of error messages */
 
@@ -229,5 +239,13 @@ typedef struct hvsc_bugs_s {
     char *                  text;       /**< text about the bug */
     char *                  user;       /**< person reporting the bug */
 } hvsc_bugs_t;
+
+
+typedef struct hvsc_stil_tune_entry_s {
+    int                 tune;           /**< tune number in the SID (1-256) */
+    hvsc_stil_field_t **fields;         /**< STIL fields array */
+    size_t              field_count;    /**< number of fields in \a fields */
+} hvsc_stil_tune_entry_t;
+
 
 #endif

@@ -42,4 +42,9 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle);
 
 void hvsc_stil_dump(hvsc_stil_t *handle);
 
+bool hvsc_stil_get_tune_entry(const hvsc_stil_t *handle,
+                              hvsc_stil_tune_entry_t *entry,
+                              int tune);
+
+void hvsc_stil_dump_tune_entry(const hvsc_stil_tune_entry_t *entry);
 #endif
