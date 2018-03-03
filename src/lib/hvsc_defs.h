@@ -190,11 +190,16 @@ typedef struct hvsc_stil_parser_state_s {
 } hvsc_stil_parser_state_t;
 
 
-/** \brief  BUGlist entry
+/** \brief  Handle for the BUGlist functions
  */
-typedef struct hvsc_buglist_entry_s {
-    char *desc;     /**< descriptions of the bug */
-    char *user;     /**< person reporting the bug */
-} hvsc_buglist_entry_t;
+typedef struct hvsc_bugs_s {
+    hvsc_text_file_t        bugs;       /**< handle for the BUGlist.txt file */
+    char *                  psid_path;  /**< path to PSID file */
+    char *                  text;       /**< text about the bug */
+    char *                  user;       /**< person reporting the bug */
+} hvsc_bugs_t;
+
+
+
 
 #endif

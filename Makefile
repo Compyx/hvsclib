@@ -15,7 +15,7 @@ LDFLAGS = -lgcrypt
 
 
 LIB = libhvsc.so
-LIB_OBJS = base.o main.o sldb.o stil.o
+LIB_OBJS = base.o main.o sldb.o stil.o bugs.o
 LIB_HEADERS = hvsc_defs.h base.h
 
 TESTER = hvsc-test

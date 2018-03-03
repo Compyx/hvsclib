@@ -34,6 +34,7 @@
 #include "main.h"
 #include "sldb.h"
 #include "stil.h"
+#include "bugs.h"
 
 
 /** \brief  Test driver
@@ -47,6 +48,7 @@ int main(int argc, char *argv[])
     long *lengths;
 
     hvsc_stil_t stil;
+    hvsc_bugs_t bugs;
 
     puts("HVSC LIB test driver\n");
 
@@ -84,24 +86,47 @@ int main(int argc, char *argv[])
     printf("Opening STIL, looking for %s\n", argv[1]);
     if (!hvsc_stil_open(argv[1], &stil)) {
         hvsc_perror(argv[0]);
-        hvsc_exit();
-        return EXIT_FAILURE;
+        if (hvsc_errno != HVSC_ERR_NOT_FOUND) {
+            hvsc_exit();
+            return EXIT_FAILURE;
+        }
+        printf("Continuing\n");
+    } else {
+
+        printf("Reading STIL entry text\n");
+        if (hvsc_stil_read_entry(&stil)) {
+            printf("Dumping STIL entry text:\n");
+            hvsc_stil_dump_entry(&stil);
+        }
+
+        printf("Parsing STIL entry text\n");
+        if (!hvsc_stil_parse_entry(&stil)) {
+            hvsc_perror(argv[0]);
+            hvsc_stil_close(&stil);
+            hvsc_exit();
+            return EXIT_FAILURE;
+        }
+
+        printf("Dumping parsed data:\n");
+        hvsc_stil_dump(&stil);
+        printf("Closing STIL\n");
+        hvsc_stil_close(&stil);
     }
 
-    printf("Reading STIL entry text\n");
-    if (hvsc_stil_read_entry(&stil)) {
-        printf("Dumping STIL entry text:\n");
-        hvsc_stil_dump_entry(&stil);
+    printf("\n\nTesting HVSC BUGlist\n\n");
+
+    if (!hvsc_bugs_open(argv[1], &bugs)) {
+        hvsc_perror(argv[0]);
+        if (hvsc_errno == HVSC_ERR_NOT_FOUND) {
+            printf("BUGlist: No entry found, no worries\n");
+        }
+    } else {
+        printf("Found entry:\n");
+        printf("{ bug} %s\n", bugs.text);
+        printf("{user} %s\n", bugs.user);
+        hvsc_bugs_close(&bugs);
     }
 
-    printf("Parsing STIL entry text\n");
-    hvsc_stil_parse_entry(&stil);
-
-    printf("Dumping parsed data:\n");
-    hvsc_stil_dump(&stil);
-
-    printf("Closing STIL\n");
-    hvsc_stil_close(&stil);
 
     hvsc_exit();
     return EXIT_SUCCESS;
