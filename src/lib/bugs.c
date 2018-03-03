@@ -131,6 +131,7 @@ static bool bugs_parse(hvsc_bugs_t *handle)
             if (handle->user == NULL) {
                 free(handle->text);
                 handle->text = NULL;
+                return false;
             }
             return true;
         }
