@@ -34,6 +34,37 @@
 #define HVSC_DEBUG
 #endif
 
+/*
+ * A bit of preprocessor trickery to properly stringify the version numbers
+ */
+
+/** \brief  Helper macro to stringify version numbers
+ */
+#define _xstr1(s) #s
+
+/** \brief  Helper macro to stringify version numbers
+ */
+#define _xstr(s) _xstr1(s)
+
+/** \brief  Library version number major
+ */
+#define HVSC_LIB_VERSION_MAJ    0
+
+/** \brief  Library version number minor
+ */
+#define HVSC_LIB_VERSION_MIN    1
+
+/** \brief  Library version number revision
+ */
+#define HVSC_LIB_VERSION_REV    0
+
+/** \brief  Library version string
+ */
+#define HVSC_LIB_VERSION_STR _xstr(HVSC_LIB_VERSION_MAJ) \
+    "." _xstr(HVSC_LIB_VERSION_MIN) \
+    "." _xstr(HVSC_LIB_VERSION_REV)
+
+
 /** \brief  Error code for the library
  */
 extern int hvsc_err;
@@ -198,8 +229,5 @@ typedef struct hvsc_bugs_s {
     char *                  text;       /**< text about the bug */
     char *                  user;       /**< person reporting the bug */
 } hvsc_bugs_t;
-
-
-
 
 #endif

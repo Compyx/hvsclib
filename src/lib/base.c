@@ -707,6 +707,8 @@ int hvsc_get_field_type(const char *s)
 
 /** \brief  Get display string for field \a type
  *
+ * \param[in]   type    field type
+ *
  * \return  string
  */
 const char *hvsc_get_field_display(int type)

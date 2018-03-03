@@ -35,10 +35,10 @@
 
 /** \brief  Debug message macro
  *
- * Prints a debug message on stdout if \ref HVSC_DEBUG is declared. The function
- * prints file, lineno and function name and then the message. The message can
- * be specified as a printf() call: a format string and a variable list of
- * arguments.
+ * Prints a debug message on stdout if the macro `HVSC_DEBUG` is defined.
+ * The function prints file, lineno and function name and then the message.
+ * The message can be specified as a printf() call: a format string and a
+ * variable list of arguments.
  *
  * An example:
  * \code{.c}
@@ -88,10 +88,7 @@ char *      hvsc_path_strip_root(const char *path);
 bool        hvsc_string_is_empty(const char *s);
 bool        hvsc_string_is_comment(const char *s);
 long        hvsc_parse_simple_timestamp(char *t, char **endptr);
-
-
 int         hvsc_get_field_type(const char *s);
-
 const char *hvsc_get_field_display(int type);
 
 #endif

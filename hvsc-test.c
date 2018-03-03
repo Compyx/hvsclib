@@ -50,7 +50,15 @@ int main(int argc, char *argv[])
     hvsc_stil_t stil;
     hvsc_bugs_t bugs;
 
+    int major;
+    int minor;
+    int revision;
+
     puts("HVSC LIB test driver\n");
+
+    printf("Library version string = %s\n", hvsc_lib_version_str());
+    hvsc_lib_version_num(&major, &minor, &revision);
+    printf("Libarry version number = %d, %d, %d\n", major, minor, revision);
 
     if (argc < 2) {
         printf("Usage: %s <PSID-file>\n", argv[0]);

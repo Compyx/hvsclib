@@ -34,6 +34,7 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
+#include "hvsc_defs.h"
 #include "base.h"
 #include "stil.h"
 #include "sldb.h"
@@ -73,4 +74,28 @@ bool hvsc_init(const char *path)
 void hvsc_exit(void)
 {
     hvsc_free_paths();
+}
+
+
+/** \brief  Get library version string
+ *
+ * \return  version string: "maj.min.rev"
+ */
+const char *hvsc_lib_version_str(void)
+{
+    return HVSC_LIB_VERSION_STR;
+}
+
+
+/** \brief  Get library version number
+ *
+ * \param[out]  major       major version number
+ * \param[out]  minor       minor version number
+ * \param[out]  revision    revision number
+ */
+void hvsc_lib_version_num(int *major, int *minor, int *revision)
+{
+    *major = HVSC_LIB_VERSION_MAJ;
+    *minor = HVSC_LIB_VERSION_MIN;
+    *revision = HVSC_LIB_VERSION_REV;
 }

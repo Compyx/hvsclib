@@ -25,6 +25,11 @@ TESTER_OBJS = hvsc-test.o
 all: $(TESTER)
 
 # dependencies of the various objects, according to headers included
+base.o: base.h
+bugs.o: bugs.h base.o
+sldb.o: sldb.h base.o
+stil.o: stil.h base.o
+
 
 .PHONY: clean
 clean:
