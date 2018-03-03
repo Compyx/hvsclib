@@ -28,7 +28,6 @@
 #ifndef HVSC_BUGS_H
 #define HVSC_BUGS_H
 
-bool hvsc_bugs_open(const char *psid, hvsc_bugs_t *handle);
-void hvsc_bugs_close(hvsc_bugs_t *handle);
+
 
 #endif

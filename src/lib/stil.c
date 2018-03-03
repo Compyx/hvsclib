@@ -32,6 +32,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "hvsc.h"
+
 #include "hvsc_defs.h"
 #include "base.h"
 

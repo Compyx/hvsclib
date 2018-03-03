@@ -30,8 +30,5 @@
 
 #include <stdbool.h>
 
-char *hvsc_sldb_get_entry(const char *psid);
-int hvsc_sldb_get_lengths(const char *psid, long **lengths);
-
 
 #endif

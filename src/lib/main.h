@@ -31,10 +31,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-bool hvsc_init(const char *path);
-void hvsc_exit(void);
-
-const char *hvsc_lib_version_str(void);
-void        hvsc_lib_version_num(int *major, int *minor, int *revision);
-
 #endif

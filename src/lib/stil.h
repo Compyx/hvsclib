@@ -33,18 +33,4 @@
 #include "hvsc_defs.h"
 
 
-bool hvsc_stil_open(const char *psid, hvsc_stil_t *handle);
-void hvsc_stil_close(hvsc_stil_t *handle);
-bool hvsc_stil_read_entry(hvsc_stil_t *handle);
-void hvsc_stil_dump_entry(hvsc_stil_t *handle);
-
-bool hvsc_stil_parse_entry(hvsc_stil_t *handle);
-
-void hvsc_stil_dump(hvsc_stil_t *handle);
-
-bool hvsc_stil_get_tune_entry(const hvsc_stil_t *handle,
-                              hvsc_stil_tune_entry_t *entry,
-                              int tune);
-
-void hvsc_stil_dump_tune_entry(const hvsc_stil_tune_entry_t *entry);
 #endif

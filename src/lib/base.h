@@ -64,15 +64,12 @@
 # define hvsc_dbg(...)
 #endif
 
-extern int hvsc_errno;
 
 extern char *hvsc_root_path;
 extern char *hvsc_sldb_path;
 extern char *hvsc_stil_path;
 extern char *hvsc_bugs_path;
 
-const char *hvsc_strerror(int n);
-void        hvsc_perror(const char *prefix);
 char *      hvsc_strdup(const char *s);
 char *      hvsc_strndup(const char *s, size_t n);
 char *      hvsc_paths_join(const char *p1, const char *p2);

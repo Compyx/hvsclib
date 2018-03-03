@@ -30,11 +30,7 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-#include "base.h"
-#include "main.h"
-#include "sldb.h"
-#include "stil.h"
-#include "bugs.h"
+#include "hvsc.h"
 
 
 /** \brief  Test driver

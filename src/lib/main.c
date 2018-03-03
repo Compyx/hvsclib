@@ -34,6 +34,8 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
+#include "hvsc.h"
+
 #include "hvsc_defs.h"
 #include "base.h"
 #include "stil.h"
