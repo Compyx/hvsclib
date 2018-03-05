@@ -1,4 +1,13 @@
 # vim: set noet ts=8 :
+#
+# Makefile
+#
+# Two macros can be used to alter the behaviour of hvsclib:
+#
+# * HVSC_DEBUG    Generate debugging info on stdout
+# * HVSC_USE_MD5  Use md5 functions in sldb.c and link against libgcrypt20
+#
+
 VPATH = src:src/lib
 CC = gcc
 LD = gcc
@@ -11,7 +20,8 @@ CFLAGS = -Wall -Wextra -pedantic -std=c99 -Wshadow -Wpointer-arith \
 	 -Wredundant-decls -Wnested-externs -Wunreachable-code \
 	 -O3 -g -Isrc -Isrc/lib -DHVSC_DEBUG
 
-LDFLAGS = -lgcrypt
+# Only use this when defining HVSC_USE_MD5
+# LDFLAGS = -lgcrypt
 
 
 LIB = libhvsc.so
@@ -51,9 +61,5 @@ $(LIB): $(LIB_OBJS)
 $(TESTER): $(TESTER_OBJS) $(LIB)
 	$(LD) -o $(TESTER) $(TESTER_OBJS) $(LIB) -L. $(LDFLAGS)
 
-
-
 %.o: %.c $(LIB_HEADERS)
 	$(CC) $(CFLAGS) -fPIC -c -o $@ $< -Isrc/lib
-
-

@@ -181,7 +181,10 @@ void        hvsc_perror(const char *prefix);
  * sldb.c stuff
  */
 
-char *      hvsc_sldb_get_entry(const char *psid);
+#ifdef HVSC_USE_MD5
+char *      hvsc_sldb_get_entry_md5(const char *psid);
+#endif
+char *      hvsc_sldb_get_entry_txt(const char *psid);
 int         hvsc_sldb_get_lengths(const char *psid, long **lengths);
 
 

@@ -41,6 +41,8 @@
 #include "sldb.h"
 
 
+#ifdef HVSC_USE_MD5
+
 /** \brief  Calculate MD5 hash of file \a psid
  *
  * \param[in]   psid    PSID file
@@ -85,7 +87,10 @@ static bool create_md5_hash(const char *psid, unsigned char *digest)
 
     return true;
 }
+#endif
 
+
+#ifdef HVSC_USE_MD5
 /** \brief  Find SLDB entry by \a digest
  *
  * The \a digest has to be in the same string form as the SLDB. So 32 bytes
@@ -95,7 +100,7 @@ static bool create_md5_hash(const char *psid, unsigned char *digest)
  *
  * \return  line of text from SLDB or `NULL` when not found
  */
-static char *find_sldb_entry(const char *digest)
+static char *find_sldb_entry_md5(const char *digest)
 {
     hvsc_text_file_t handle;
     const char *line;
@@ -128,9 +133,55 @@ static char *find_sldb_entry(const char *digest)
     hvsc_errno = HVSC_ERR_NOT_FOUND;
     return NULL;
 }
+#endif
 
 
+/** \brief  Find song length entry by PSID name in the comments
+ *
+ * \param[in]   path    relative path in the HVSC to the SID
+ *
+ * \return  text line with the song length info or `NULL` on failure
+ */
+static char *find_sldb_entry_txt(const char *path)
+{
+    hvsc_text_file_t handle;
+    size_t plen;
+    const char *line;
 
+    if (!hvsc_text_file_open(hvsc_sldb_path, &handle)) {
+        return NULL;
+    }
+
+    plen = strlen(path);
+
+    while (true) {
+        line = hvsc_text_file_read(&handle);
+        if (line == NULL) {
+            hvsc_text_file_close(&handle);
+            return NULL;
+        }
+
+
+        if (*line == ';') {
+            if (strncmp(path, line + 2, plen) == 0) {
+                /* next line contains the actual entry */
+                char *s;
+                line = hvsc_text_file_read(&handle);
+                if (line == NULL) {
+                    hvsc_text_file_close(&handle);
+                    return NULL;
+                }
+                s = hvsc_strdup(handle.buffer);
+                hvsc_text_file_close(&handle);
+                return s;
+            }
+        }
+    }
+
+    hvsc_text_file_close(&handle);
+    hvsc_errno = HVSC_ERR_NOT_FOUND;
+    return NULL;
+}
 
 
 
@@ -182,13 +233,15 @@ static int parse_sldb_entry(char *line, long **lengths)
 }
 
 
+
+#ifdef HVSC_USE_MD5
 /** \brief  Get the SLDB entry for PSID file \a psid
  *
  * \param[in]   psid    path to PSID file
  *
  * \return  heap-allocated entry or `NULL` on failure
  */
-char *hvsc_sldb_get_entry(const char *psid)
+char *hvsc_sldb_get_entry_md5(const char *psid)
 {
     unsigned char hash[HVSC_DIGEST_SIZE];
     char hash_text[HVSC_DIGEST_SIZE * 2 + 1];
@@ -214,13 +267,45 @@ char *hvsc_sldb_get_entry(const char *psid)
 #endif
 
     /* parse SLDB */
-    entry = find_sldb_entry(hash_text);
+    entry = find_sldb_entry_md5(hash_text);
     if (entry == NULL) {
         return NULL;
     }
     hvsc_dbg("Got it: %s\n", entry);
     return entry;
 }
+
+#endif  /* ifdef HVSC_USE_MD5 */
+
+
+/** \brief  Find SLDB entry by using text lookup
+ *
+ * This function uses the "; /path/to/file" lines to identify the SID entry,
+ * which makes using/linking against libgcrypt no longer required.
+ *
+ * \param   [in]    psid    absolute path to SID in the HVSC
+ *
+ * \return  line of text containing the song length info or `NULL` on failure
+ */
+char *hvsc_sldb_get_entry_txt(const char *psid)
+{
+    char *path;
+    char *entry;
+
+    /* strip HVSC root from path */
+    path = hvsc_path_strip_root(psid);
+    if (path == NULL) {
+        return NULL;
+    }
+
+    entry = find_sldb_entry_txt(path);
+    free(path);
+    if (entry != NULL) {
+        hvsc_dbg("Got it: %s\n", entry);
+    }
+    return entry;
+}
+
 
 
 /** \brief  Get a list of song lengths for PSID file \a psid
@@ -237,7 +322,11 @@ int hvsc_sldb_get_lengths(const char *psid, long **lengths)
 
     *lengths = NULL;
 
-    entry = hvsc_sldb_get_entry(psid);
+#ifdef HVSC_USE_MD5
+    entry = hvsc_sldb_get_entry_md5(psid);
+#else
+    entry = hvsc_sldb_get_entry_txt(psid);
+#endif
     if (entry == NULL) {
         return -1;
     }
