@@ -28,6 +28,8 @@
 #ifndef HVSC_BASE_H
 #define HVSC_BASE_H
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -73,7 +75,7 @@ extern char *hvsc_bugs_path;
 char *      hvsc_strdup(const char *s);
 char *      hvsc_strndup(const char *s, size_t n);
 char *      hvsc_paths_join(const char *p1, const char *p2);
-long        hvsc_read_file(unsigned char **dest, const char *path);
+long        hvsc_read_file(uint8_t **dest, const char *path);
 bool        hvsc_set_paths(const char *path);
 void        hvsc_free_paths(void);
 void        hvsc_text_file_init_handle(hvsc_text_file_t *handle);
@@ -87,5 +89,9 @@ bool        hvsc_string_is_comment(const char *s);
 long        hvsc_parse_simple_timestamp(char *t, char **endptr);
 int         hvsc_get_field_type(const char *s);
 const char *hvsc_get_field_display(int type);
+
+void        hvsc_get_word_be(uint16_t *dest, const uint8_t *src);
+void        hvsc_get_word_le(uint16_t *dest, const uint8_t *src);
+void        hvsc_get_longword_be(uint32_t *dest, const uint8_t *src);
 
 #endif

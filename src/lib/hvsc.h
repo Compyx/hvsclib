@@ -34,6 +34,12 @@
 #ifndef HVSC_HVSC_H
 #define HVSC_HVSC_H
 
+/* for size_t, fixed width types and bool */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+
 /** \brief  Error codes
  */
 typedef enum hvsc_err_e {
@@ -150,9 +156,66 @@ typedef struct hvsc_stil_tune_entry_s {
     size_t              field_count;    /**< number of fields in \a fields */
 } hvsc_stil_tune_entry_t;
 
+
+
 /*
- * Types
+ * psid.c public defines and types
  */
+
+/** \brief  Length of the magic bytes in the header
+ */
+#define HVSC_PSID_MAGIC_LEN         0x04
+
+/** \brief  Length of a text field in the header
+ *
+ * This is the size of the name, author, and copyright fields. These fields are
+ * in ASCII (Latin-1) and are NOT nul-terminated.
+ */
+#define HVSC_PSID_TEXT_LEN          0x20
+
+
+/** \brief  PSID handle
+ */
+typedef struct hvsc_psid_s {
+    /*
+     * information on the entire file
+     */
+    char *      path;
+    uint8_t *   data;
+    size_t      size;
+
+    /*
+     * header data
+     */
+
+    uint8_t     magic[HVSC_PSID_MAGIC_LEN]; /**< magic bytes */
+    uint16_t    version;                    /**< version number */
+
+    uint16_t    data_offset;                /**< offset to SID data */
+    uint16_t    load_address;               /**< load address on C64 */
+    uint16_t    init_address;               /**< init address on C64 */
+    uint16_t    play_address;               /**< play address on C64 */
+
+    uint16_t    songs;                      /**< number of songs */
+    uint16_t    start_song;                 /**< starting song */
+    uint32_t    speed;                      /**< song speed flags */
+
+    char        name[HVSC_PSID_TEXT_LEN + 1];   /**< SID name */
+    char        author[HVSC_PSID_TEXT_LEN + 1]; /**< SID author */
+    char        copyright[HVSC_PSID_TEXT_LEN + 1]; /**< SID copyright */
+
+    /*
+     * PSIDv2NG+ only fields
+     */
+
+    uint16_t    flags;                      /**< PSID flags */
+    uint8_t     start_page;                 /**< starting page of free memory                                                         not touched by the SID */
+    uint8_t     page_length;                /**< number of free pages after
+                                                 start page */
+    uint8_t     second_sid;                 /**< second SID I/O address */
+    uint8_t     third_sid;                  /**< third SID I/O adress */
+
+} hvsc_psid_t;
 
 
 
@@ -209,5 +272,14 @@ void        hvsc_stil_dump_tune_entry(const hvsc_stil_tune_entry_t *entry);
 
 bool        hvsc_bugs_open(const char *psid, hvsc_bugs_t *handle);
 void        hvsc_bugs_close(hvsc_bugs_t *handle);
+
+
+/*
+ * psid.c stuff
+ */
+
+bool hvsc_psid_open(const char *path, hvsc_psid_t *handle);
+void hvsc_psid_close(hvsc_psid_t *handle);
+void hvsc_psid_dump(const hvsc_psid_t *handle);
 
 #endif

@@ -25,7 +25,7 @@ CFLAGS = -Wall -Wextra -pedantic -std=c99 -Wshadow -Wpointer-arith \
 
 
 LIB = libhvsc.so
-LIB_OBJS = base.o main.o sldb.o stil.o bugs.o
+LIB_OBJS = base.o main.o psid.o sldb.o stil.o bugs.o
 LIB_HEADERS = hvsc.h hvsc_defs.h
 
 TESTER = hvsc-test
@@ -37,6 +37,7 @@ all: $(TESTER)
 # dependencies of the various objects, according to headers included
 base.o: base.h
 bugs.o: bugs.h base.o
+psid.o: psid.h base.o
 sldb.o: sldb.h base.o
 stil.o: stil.h base.o
 

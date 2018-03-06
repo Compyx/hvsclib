@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
     hvsc_stil_t stil;
     hvsc_bugs_t bugs;
     hvsc_stil_tune_entry_t tune_entry;
+    hvsc_psid_t psid;
 
     int major;
     int minor;
@@ -126,8 +127,6 @@ int main(int argc, char *argv[])
 
         printf("Closing STIL\n");
         hvsc_stil_close(&stil);
-
-
     }
 
     printf("\n\nTesting HVSC BUGlist\n\n");
@@ -144,6 +143,14 @@ int main(int argc, char *argv[])
         hvsc_bugs_close(&bugs);
     }
 
+    printf("\n\nTesing PSID file handling\n\n");
+
+    printf("Opening %s\n", argv[1]);
+    if (hvsc_psid_open(argv[1], &psid)) {
+        printf("Dumping header:\n");
+        hvsc_psid_dump(&psid);
+        hvsc_psid_close(&psid);
+    }
 
     hvsc_exit();
     return EXIT_SUCCESS;

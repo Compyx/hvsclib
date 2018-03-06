@@ -337,10 +337,10 @@ const char *hvsc_text_file_read(hvsc_text_file_t *handle)
  *
  * @return  number of bytes read, or -1 on failure
  */
-long hvsc_read_file(unsigned char **dest, const char *path)
+long hvsc_read_file(uint8_t **dest, const char *path)
 {
-    unsigned char *data;
-    unsigned char *tmp;
+    uint8_t *data;
+    uint8_t *tmp;
     FILE *fd;
     size_t offset = 0;
     size_t size = READFILE_BLOCK_SIZE;
@@ -720,4 +720,38 @@ const char *hvsc_get_field_display(int type)
         return "<invalid>";
     }
     return field_displays[type];
+}
+
+
+/** \brief  Get a 16-bit big endian unsigned integer from \a src
+ *
+ * \param[out]  dest    object to store result
+ * \param[in]   src     source data
+ */
+void hvsc_get_word_be(uint16_t *dest, const uint8_t *src)
+{
+    *dest = (uint16_t)((src[0] << 8) + src[1]);
+}
+
+
+/** \brief  Get a 16-bit little endian unsigned integer from \a src
+ *
+ * \param[out]  dest    object to store result
+ * \param[in]   src     source data
+ */
+void hvsc_get_word_le(uint16_t *dest, const uint8_t *src)
+{
+    *dest = (uint16_t)((src[1] << 8) + src[0]);
+}
+
+
+
+/** \brief  Get a 32-bit big endian unsigned integer from \a src
+ *
+ * \param[out]  dest    object to store result
+ * \param[in]   src     source data
+ */
+void hvsc_get_longword_be(uint32_t *dest, const uint8_t *src)
+{
+    *dest = (uint32_t)((src[0] << 24) + (src[1] << 16) + (src[2] << 8) + src[3]);
 }

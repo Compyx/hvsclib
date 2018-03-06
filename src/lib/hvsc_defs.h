@@ -113,6 +113,7 @@
 #define HVSC_HANDLE_BLOCKS_INIT    32
 
 
+#include "hvsc.h"
 
 /** \brief  STIL parser state
  */
@@ -132,10 +133,6 @@ typedef struct hvsc_stil_parser_state_s {
     char *                  album;      /**< album/cover string */
     size_t                  album_len;  /**< length of album string */
 } hvsc_stil_parser_state_t;
-
-
-
-
 
 
 #endif
