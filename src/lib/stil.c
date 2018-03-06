@@ -947,6 +947,13 @@ bool hvsc_stil_parse_entry(hvsc_stil_t *handle)
             /*
              * Add line to block
              */
+
+            /* fix the tune number */
+            if (state.tune == 0 && type != HVSC_FIELD_COMMENT) {
+                state.tune = 1;
+                state.block->tune = 1;
+            }
+
             if (state.tune > 0) {
                 hvsc_dbg("Adding '%s'\n", line);
                 state.field = stil_field_new(

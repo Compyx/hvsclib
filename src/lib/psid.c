@@ -326,5 +326,4 @@ void hvsc_psid_dump(const hvsc_psid_t *handle)
     } else {
         printf("third SID  : none\n");
     }
-
 }
