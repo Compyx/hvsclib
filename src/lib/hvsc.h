@@ -180,9 +180,9 @@ typedef struct hvsc_psid_s {
     /*
      * information on the entire file
      */
-    char *      path;
-    uint8_t *   data;
-    size_t      size;
+    char *      path;   /**< path to psid file */
+    uint8_t *   data;   /**< data of psid file */
+    size_t      size;   /**< size of psid file */
 
     /*
      * header data
