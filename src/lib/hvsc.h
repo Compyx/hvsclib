@@ -163,6 +163,7 @@ typedef struct hvsc_stil_tune_entry_s {
  */
 
 /** \brief  Length of the magic bytes in the header
+ * \ingroup psid
  */
 #define HVSC_PSID_MAGIC_LEN         0x04
 
@@ -170,6 +171,8 @@ typedef struct hvsc_stil_tune_entry_s {
  *
  * This is the size of the name, author, and copyright fields. These fields are
  * in ASCII (Latin-1) and are NOT nul-terminated.
+ *
+ * \ingroup psid
  */
 #define HVSC_PSID_TEXT_LEN          0x20
 
@@ -179,34 +182,40 @@ typedef struct hvsc_stil_tune_entry_s {
  */
 
 /** \brief  Bit 0: Compute!'s Sidplayer
+ * \ingroup psid
  */
 #define HVSC_PSID_FLAGS_MUS_PLAYER      0x0001
 
 /** \brief  Bit 1: tune is PlaySID specific
+ * \ingroup psid
  */
 #define HVSC_PSID_FLAGS_PSID_SPECIFIC   0x0002
 
 /** \brief  Bits 2-3: video standard (clock)
  *
  * 00 = unknown, 01 = PAL, 10 = NTSC, 11 = PAL and NTSC
+ * \ingroup psid
  */
 #define HVSC_PSID_FLAGS_CLOCK           0x000c
 
 /** \brief  Bits 4-5: first SID model
  *
  * 00 = unkown, 01 = MOS6581, 10 = MOS8580, 11 = MOS6581 and MOS8580
+ * \ingroup psid
  */
 #define HVSC_PSID_FLAGS_SID_MODEL1      0x0030
 
 /** \brief  Bits 6-7: second SID model
  *
  * 00 = unkown, 01 = MOS6581, 10 = MOS8580, 11 = MOS6581 and MOS8580
+ * \ingroup psid
  */
 #define HVSC_PSID_FLAGS_SID_MODEL2      0x00c0
 
 /** \brief  Bits 8-9: third SID model
  *
  * 00 = unkown, 01 = MOS6581, 10 = MOS8580, 11 = MOS6581 and MOS8580
+ * \ingroup psid
  */
 #define HVSC_PSID_FLAGS_SID_MODEL3      0x0300
 
@@ -214,12 +223,10 @@ typedef struct hvsc_stil_tune_entry_s {
  * bits 10-15 of the 'flags' word are reserved for future use
  */
 
-
-
-
 /** \brief  PSID handle
  *
  * \see https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/SID_file_format.txt
+ * \ingroup psid
  */
 typedef struct hvsc_psid_s {
     /*
@@ -261,7 +268,6 @@ typedef struct hvsc_psid_s {
     uint16_t    third_sid;                  /**< third SID I/O adress */
 
 } hvsc_psid_t;
-
 
 
 /*

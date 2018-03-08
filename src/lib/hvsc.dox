@@ -1,0 +1,13 @@
+/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
+
+/**
+ * \mainpage    Main page
+ *
+ * \defgroup    main    Main module
+ * \defgroup    sldb    Song length data support (Songlenghts.[md5|txt])
+ * \defgroup    stil    SID Tune information List support (STIL.txt)
+ * \defgroup    psid    PSID/RSID file support
+ * \defgroup    base    Base functionality, mostly internal
+ *
+ *
+ */
