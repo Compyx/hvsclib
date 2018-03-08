@@ -173,6 +173,15 @@ static bool test_psid(const char *path)
     if (hvsc_psid_open(path, &psid)) {
         printf("Dumping header:\n");
         hvsc_psid_dump(&psid);
+
+        printf("Writing binary in SID as 'tune.sid'\n");
+        if (hvsc_psid_write_bin(&psid, "tune.sid")) {
+            printf("OK\n");
+        } else {
+            printf("Failed\n");
+            hvsc_perror("hvsc-test");
+        }
+
         hvsc_psid_close(&psid);
         return true;
     } else {

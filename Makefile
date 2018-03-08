@@ -46,6 +46,7 @@ stil.o: stil.h base.o
 clean:
 	rm -f *.o
 	rm -f $(TESTER) $(LIB)
+	rm -f *.sid
 
 .PHONY: doc
 doc:

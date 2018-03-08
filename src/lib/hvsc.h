@@ -332,7 +332,7 @@ void        hvsc_bugs_close(hvsc_bugs_t *handle);
 bool            hvsc_psid_open(const char *path, hvsc_psid_t *handle);
 void            hvsc_psid_close(hvsc_psid_t *handle);
 void            hvsc_psid_dump(const hvsc_psid_t *handle);
-
+bool            hvsc_psid_write_bin(const hvsc_psid_t *handle, const char *path);
 unsigned int    hvsc_psid_get_model_id(const hvsc_psid_t *handle, int sid);
 const char *    hvsc_psid_get_model_str(const hvsc_psid_t *handle, int sid);
 unsigned int    hvsc_psid_get_clock_id(const hvsc_psid_t *handle);

@@ -460,3 +460,54 @@ void hvsc_psid_dump(const hvsc_psid_t *handle)
     printf("start page      : $%04x\n", handle->start_page * 256);
     printf("page length     : $%04x\n", handle->page_length * 256);
 }
+
+
+/** \brief  Extract SID binary from \a handle and write to \a path
+ *
+ * \param[in]   handle  PSID handle
+ * \param[in]   path    path/filename to write data to
+ *
+ * \return  bool
+ *
+ * \ingroup psid
+ */
+bool hvsc_psid_write_bin(const hvsc_psid_t *handle, const char *path)
+{
+    FILE *fp;
+    size_t size;
+    size_t result;
+
+    fp = fopen(path, "wb");
+    if (fp == NULL) {
+        hvsc_errno = HVSC_ERR_IO;
+        return false;
+    }
+
+    /* do we need to write a 2-byte start address? */
+    if (handle->load_address != 0) {
+        /* write start address in little endian order */
+        if (fputc(handle->load_address & 0xff, fp) == EOF) {
+            hvsc_errno = HVSC_ERR_IO;
+            fclose(fp);
+            return false;
+        }
+        if (fputc(handle->load_address >> 8, fp) == EOF) {
+            hvsc_errno = HVSC_ERR_IO;
+            fclose(fp);
+            return false;
+        }
+    }
+    /* write binary data */
+    size = handle->size - handle->data_offset;
+    hvsc_dbg("writing %zu bytes\n", size);
+    result = fwrite(handle->data + handle->data_offset, 1U, size, fp);
+    hvsc_dbg("wrote %zu bytes\n", result);
+    if (result != size) {
+        hvsc_errno = HVSC_ERR_IO;
+        fclose(fp);
+        return false;
+    }
+
+    fclose(fp);
+    return true;
+}
