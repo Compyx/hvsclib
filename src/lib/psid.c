@@ -47,6 +47,30 @@ static const uint8_t psid_magic[HVSC_PSID_MAGIC_LEN] = { 0x50, 0x53, 0x49, 0x44 
 static const uint8_t rsid_magic[HVSC_PSID_MAGIC_LEN] = { 0x50, 0x53, 0x49, 0x44 };
 
 
+/** \brief  SID models
+ *
+ * Used to display bits 4-5, 6-7 and 8-9 of the 'flags' field
+ */
+static const char *sid_models[4] = {
+    "unknown",
+    "6581",
+    "8580",
+    "6581 and 8580"
+};
+
+
+/** \brief  Clock speed strings
+ *
+ * Used to display bits 2-3 of the 'flags' field
+ */
+static const char *sid_clocks[4] = {
+    "unkown",
+    "PAL",
+    "NTSC",
+    "PAL and NTSC"
+};
+
+
 /** \brief  Initialize \a handle for use
  *
  * \param[in,out]   handle  PSID handle
@@ -181,10 +205,12 @@ static void psid_parse_header(hvsc_psid_t *handle)
 
     /* second SID */
     sid_addr = handle->data[HVSC_PSID_SECOND_SID];
-    handle->second_sid = psid_sid_address_is_valid(sid_addr) ? sid_addr : 0;
+    handle->second_sid = psid_sid_address_is_valid(sid_addr)
+        ? (uint16_t)(sid_addr * 16 + 0xd000) : 0;
     /* third SID */
     sid_addr = handle->data[HVSC_PSID_THIRD_SID];
-    handle->third_sid = psid_sid_address_is_valid(sid_addr) ? sid_addr : 0;
+    handle->third_sid = psid_sid_address_is_valid(sid_addr)
+        ? (uint16_t)(sid_addr * 16 + 0xd000) : 0;
 }
 
 
@@ -263,6 +289,77 @@ void hvsc_psid_close(hvsc_psid_t *handle)
 }
 
 
+/** \brief  Get SID model bits
+ *
+ * Get the SID model bits for \a sid for \a handle, left-shifted to bit 0-1
+ *
+ * \param[in]   handle  PSID model
+ * \param[in]   sid     SID number (1-3)
+ *
+ * \return  model (%00-%11)
+ */
+unsigned int hvsc_psid_get_model_id(const hvsc_psid_t *handle, int sid)
+{
+    unsigned int flags = handle->flags;
+    unsigned int model;
+
+    switch (sid) {
+        case 1:
+            /* first/only SID */
+            model = (flags & HVSC_PSID_FLAGS_SID_MODEL1) >> 4;
+            break;
+        case 2:
+            /* second SID */
+            model = (flags & HVSC_PSID_FLAGS_SID_MODEL2) >> 6;
+            break;
+        case 3:
+            /* third SID */
+            model = (flags & HVSC_PSID_FLAGS_SID_MODEL3) >> 8;
+            break;
+        default:
+            model = 0;
+    }
+    return model;
+}
+
+
+/** \brief  Get SID model description string
+ *
+ * \param[in]   handle  PSID model
+ * \param[in]   sid     SID number (1-3)
+ *
+ * \return  description
+ */
+const char *hvsc_psid_get_model_str(const hvsc_psid_t *handle, int sid)
+{
+    return sid_models[hvsc_psid_get_model_id(handle, sid)];
+}
+
+
+/** \brief  Get clock bits of the 'flags' field in \a handle
+ *
+ * \param[in]   handle  PSID handle
+ *
+ * \return  clocks bit (%00-%11)
+ */
+unsigned int hvsc_psid_get_clock_id(const hvsc_psid_t *handle)
+{
+    return (handle->flags & HVSC_PSID_FLAGS_CLOCK) >> 2;
+}
+
+
+/** \brief  Get clock description string
+ *
+ * \param[in]   handle  PSID handle
+ *
+ * \return  description
+ */
+const char *hvsc_psid_get_clock_str(const hvsc_psid_t *handle)
+{
+    return sid_clocks[hvsc_psid_get_clock_id(handle)];
+}
+
+
 /** \brief  Dump information on PSID on stdout
  *
  * Dumps file name, file size and the data in the header on stdout.
@@ -290,37 +387,46 @@ void hvsc_psid_dump(const hvsc_psid_t *handle)
     }
 
     /* dump header data on stdout */
-    printf("file name  : %s\n", handle->path);
-    printf("file size  : %zu\n", handle->size);
-    printf("magic      : %s\n", magic);
-    printf("version    : %d\n", (int)handle->version);
-    printf("data offset: $%04x\n", handle->data_offset);
-    printf("load       : $%04x-$%04x\n", load, end);
-    printf("init       : $%04x\n", handle->init_address);
-    printf("play       : $%04x\n", handle->play_address);
-    printf("songs      : %d (default %d)\n", handle->songs, handle->start_song);
+    printf("file name       : %s\n", handle->path);
+    printf("file size       : %zu\n", handle->size);
+    printf("magic           : %s\n", magic);
+    printf("version         : %d\n", (int)handle->version);
+    printf("data offset     : $%04x\n", handle->data_offset);
+    printf("load            : $%04x-$%04x\n", load, end);
+    printf("init            : $%04x\n", handle->init_address);
+    printf("play            : $%04x\n", handle->play_address);
+    printf("songs           : %d (default %d)\n",
+            handle->songs, handle->start_song);
     /* TODO: speed bits */
-    printf("name       : %s\n", handle->name);
-    printf("author     : %s\n", handle->author);
-    printf("copyright  : %s\n", handle->copyright);
+    printf("name            : %s\n", handle->name);
+    printf("author          : %s\n", handle->author);
+    printf("copyright       : %s\n", handle->copyright);
 
     if (handle->version < 2) {
         return;
     }
 
     /* PSID v2NG+ fields */
-    /* TODO: flags */
-    printf("start page : $%04x\n", handle->start_page * 256);
-    printf("page length: $%04x\n", handle->page_length * 256);
 
+    /* flags */
+    printf("clock           : %s\n", hvsc_psid_get_clock_str(handle));
+    printf("SID model       : %s\n", hvsc_psid_get_model_str(handle, 1));
     if (handle->second_sid != 0) {
-        printf("second SID : $%04x\n", handle->second_sid * 16 + 0xd000);
+        printf("second SID      : $%04x\n", handle->second_sid);
+        printf("second SID model: %s\n", hvsc_psid_get_model_str(handle, 2));
     } else {
-        printf("second SID : none\n");
+        printf("second SID      : none\n");
     }
     if (handle->third_sid != 0) {
-        printf("third SID  : $%04x\n", handle->third_sid * 16 + 0xd000);
+        printf("third SID       : $%04x\n", handle->third_sid);
+        printf("second SID model: %s\n", hvsc_psid_get_model_str(handle, 3));
     } else {
-        printf("third SID  : none\n");
+        printf("third SID       : none\n");
     }
+
+    /* page/driver info */
+    printf("start page      : $%04x\n", handle->start_page * 256);
+    printf("page length     : $%04x\n", handle->page_length * 256);
+
+
 }

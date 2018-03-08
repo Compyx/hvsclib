@@ -174,7 +174,52 @@ typedef struct hvsc_stil_tune_entry_s {
 #define HVSC_PSID_TEXT_LEN          0x20
 
 
+/*
+ * Bitmasks for the 'flags' word in a PSID header
+ */
+
+/** \brief  Bit 0: Compute!'s Sidplayer
+ */
+#define HVSC_PSID_FLAGS_MUS_PLAYER      0x0001
+
+/** \brief  Bit 1: tune is PlaySID specific
+ */
+#define HVSC_PSID_FLAGS_PSID_SPECIFIC   0x0002
+
+/** \brief  Bits 2-3: video standard (clock)
+ *
+ * 00 = unknown, 01 = PAL, 10 = NTSC, 11 = PAL and NTSC
+ */
+#define HVSC_PSID_FLAGS_CLOCK           0x000c
+
+/** \brief  Bits 4-5: first SID model
+ *
+ * 00 = unkown, 01 = MOS6581, 10 = MOS8580, 11 = MOS6581 and MOS8580
+ */
+#define HVSC_PSID_FLAGS_SID_MODEL1      0x0030
+
+/** \brief  Bits 6-7: second SID model
+ *
+ * 00 = unkown, 01 = MOS6581, 10 = MOS8580, 11 = MOS6581 and MOS8580
+ */
+#define HVSC_PSID_FLAGS_SID_MODEL2      0x00c0
+
+/** \brief  Bits 8-9: third SID model
+ *
+ * 00 = unkown, 01 = MOS6581, 10 = MOS8580, 11 = MOS6581 and MOS8580
+ */
+#define HVSC_PSID_FLAGS_SID_MODEL3      0x0300
+
+/*
+ * bits 10-15 of the 'flags' word are reserved for future use
+ */
+
+
+
+
 /** \brief  PSID handle
+ *
+ * \see https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/SID_file_format.txt
  */
 typedef struct hvsc_psid_s {
     /*
@@ -212,8 +257,8 @@ typedef struct hvsc_psid_s {
     uint8_t     start_page;                 /**< starting page of free memory                                                         not touched by the SID */
     uint8_t     page_length;                /**< number of free pages after
                                                  start page */
-    uint8_t     second_sid;                 /**< second SID I/O address */
-    uint8_t     third_sid;                  /**< third SID I/O adress */
+    uint16_t    second_sid;                 /**< second SID I/O address */
+    uint16_t    third_sid;                  /**< third SID I/O adress */
 
 } hvsc_psid_t;
 
@@ -278,8 +323,13 @@ void        hvsc_bugs_close(hvsc_bugs_t *handle);
  * psid.c stuff
  */
 
-bool hvsc_psid_open(const char *path, hvsc_psid_t *handle);
-void hvsc_psid_close(hvsc_psid_t *handle);
-void hvsc_psid_dump(const hvsc_psid_t *handle);
+bool            hvsc_psid_open(const char *path, hvsc_psid_t *handle);
+void            hvsc_psid_close(hvsc_psid_t *handle);
+void            hvsc_psid_dump(const hvsc_psid_t *handle);
+
+unsigned int    hvsc_psid_get_model_id(const hvsc_psid_t *handle, int sid);
+const char *    hvsc_psid_get_model_str(const hvsc_psid_t *handle, int sid);
+unsigned int    hvsc_psid_get_clock_id(const hvsc_psid_t *handle);
+const char *    hvsc_psid_get_clock_str(const hvsc_psid_t *handle);
 
 #endif
