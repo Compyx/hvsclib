@@ -185,9 +185,6 @@ static void psid_parse_header(hvsc_psid_t *handle)
     /* third SID */
     sid_addr = handle->data[HVSC_PSID_THIRD_SID];
     handle->third_sid = psid_sid_address_is_valid(sid_addr) ? sid_addr : 0;
-
-
-
 }
 
 
@@ -317,12 +314,12 @@ void hvsc_psid_dump(const hvsc_psid_t *handle)
     printf("page length: $%04x\n", handle->page_length * 256);
 
     if (handle->second_sid != 0) {
-        printf("second SID : $%04x\n", handle->second_sid * 8);
+        printf("second SID : $%04x\n", handle->second_sid * 16 + 0xd000);
     } else {
         printf("second SID : none\n");
     }
     if (handle->third_sid != 0) {
-        printf("third SID  : $%04x\n", handle->third_sid * 8);
+        printf("third SID  : $%04x\n", handle->third_sid * 16 + 0xd000);
     } else {
         printf("third SID  : none\n");
     }
