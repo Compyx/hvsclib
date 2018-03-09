@@ -210,11 +210,15 @@ static void usage(const char *prg)
 {
     int i;
 
-    printf("Usage: %s <test-name> <psid-file>\n", prg);
+    printf("Usage: %s <test-name> <psid-file> [<hvsc-root-path>]\n", prg);
     printf("\n<test-name> can either be 'all' to run all tests, or:\n");
     for (i = 0; cases[i].name != NULL; i++) {
         printf("\t%s\t%s\n", cases[i].name, cases[i].desc);
     }
+    printf("\nThe optional <hvsc-root-path> argument can be use to set the "
+            "HVSC directory.\n"
+            "(defaults to 'home/compyx/c64/HVSC', which is unlikely to be "
+            "the proper path\nfor most users)\n");
 }
 
 
@@ -231,9 +235,17 @@ int main(int argc, char *argv[])
     int minor;
     int revision;
 
+    char *hvsc_dir;
+
     if (argc < 3) {
         usage(argv[0]);
         return EXIT_FAILURE;
+    }
+    if (argc >= 4) {
+        /* use argv[3] as the HVSC root path */
+        hvsc_dir = argv[3];
+    } else {
+        hvsc_dir = "/home/compyx/c64/HVSC";
     }
 
     puts("HVSC LIB test driver\n");
@@ -243,7 +255,7 @@ int main(int argc, char *argv[])
     printf("Libarry version number = %d, %d, %d\n", major, minor, revision);
 
     printf("Initializing .. ");
-    if (!hvsc_init("/home/compyx/c64/HVSC")) {
+    if (!hvsc_init(hvsc_dir)) {
         hvsc_perror(argv[0]);
         return EXIT_FAILURE;
     }
