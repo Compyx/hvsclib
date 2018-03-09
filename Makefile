@@ -7,6 +7,9 @@
 # * HVSC_DEBUG    Generate debugging info on stdout
 # * HVSC_USE_MD5  Use md5 functions in sldb.c and link against libgcrypt20
 #
+# Also a big thank you to Blacky Startdust of VICE Team for helping me with
+# creating both a static and a shared lib!
+#
 
 VPATH = src:src/lib
 CC = gcc
@@ -23,16 +26,42 @@ CFLAGS = -Wall -Wextra -pedantic -std=c99 -Wshadow -Wpointer-arith \
 # Only use this when defining HVSC_USE_MD5
 # LDFLAGS = -lgcrypt
 
+LDFLAGS = -shared
+SHARED_LIB = libhvsc.so
+STATIC_LIB = libhvsc.a
 
-LIB = libhvsc.so
-LIB_OBJS = base.o main.o psid.o sldb.o stil.o bugs.o
-LIB_HEADERS = hvsc.h hvsc_defs.h
+SRCS = src/lib/base.c src/lib/main.c src/lib/psid.c src/lib/sldb.c \
+	   src/lib/stil.c src/lib/bugs.c
+HEADERS = hvsc.h hvsc_defs.h
+
+SHOBJS = $(SRCS:.c=.os)
+OBJS = $(SRCS:.c=.o)
 
 TESTER = hvsc-test
-TESTER_OBJS = hvsc-test.o
+TESTER_OBJS = hvsc-test.o $(STATIC_LIB)
+
+all: shared_lib static_lib
+
+shared_lib: $(SHOBJS)
+	$(CC) ${LDFLAGS} -o ${SHARED_LIB} $^
+
+static_lib: $(OBJS)
+	ar cru ${STATIC_LIB} $^
+	ranlib ${STATIC_LIB}
+
+$(TESTER): $(TESTER_OBJS)
+	$(LD) -o $(TESTER) $^
+
+.SUFFIXES: .os
+
+.c.os:
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
+
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@
 
 
-all: $(TESTER)
+all: $(TESTER) $(LIB_STATIC)
 
 # dependencies of the various objects, according to headers included
 base.o: base.h
@@ -45,6 +74,7 @@ stil.o: stil.h base.o
 .PHONY: clean
 clean:
 	rm -f *.o
+	rm -f *.os
 	rm -f $(TESTER) $(LIB)
 	rm -f *.sid
 
@@ -55,13 +85,3 @@ doc:
 .PHONY: distclean
 distclean: clean
 	rm -rfd doc/html/*
-
-
-$(LIB): $(LIB_OBJS)
-	$(LD) -shared -Wl,-soname,$(LIB) -o $@ $^ $(LDFLAGS)
-
-$(TESTER): $(TESTER_OBJS) $(LIB)
-	$(LD) -o $(TESTER) $(TESTER_OBJS) $(LIB) -L. $(LDFLAGS)
-
-%.o: %.c $(LIB_HEADERS)
-	$(CC) $(CFLAGS) -fPIC -c -o $@ $< -Isrc/lib

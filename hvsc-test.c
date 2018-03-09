@@ -4,6 +4,9 @@
  * \brief   Test driver for hvsclib
  *
  * \author  Bas Wassink <b.wassink@ziggo.nl>
+ *
+ * \defgroup    hvsc_test   Test code for hvsclib
+ * \ingroup     hvsc_test
  */
 
 /*
@@ -34,6 +37,8 @@
 #include "hvsc.h"
 
 /** \brief  Test case
+ *
+ * \ingroup hvsc_test
  */
 typedef struct test_case_s {
     const char *name;               /**< test name */
@@ -49,6 +54,8 @@ typedef struct test_case_s {
  * \param[in]   path    path to SID file
  *
  * \return  bool
+ *
+ * \ingroup hvsc_test
  */
 static bool test_sldb(const char *path)
 {
@@ -78,6 +85,8 @@ static bool test_sldb(const char *path)
  * \param[in]   path    path to SID file
  *
  * \return  bool
+ *
+ * \ingroup hvsc_test
  */
 static bool test_stil(const char *path)
 {
@@ -134,6 +143,8 @@ static bool test_stil(const char *path)
  * \param[in]   path    path to SID file
  *
  * \return  bool
+ *
+ * \ingroup hvsc_test
  */
 static bool test_buglist(const char *path)
 {
@@ -163,6 +174,8 @@ static bool test_buglist(const char *path)
  * \param[in]   path    path to SID file
  *
  * \return  bool
+ *
+ * \ingroup hvsc_test
  */
 static bool test_psid(const char *path)
 {
@@ -192,6 +205,8 @@ static bool test_psid(const char *path)
 
 
 /** \brief  Test cases
+ *
+ * \ingroup hvsc_test
  */
 static test_case_t cases[] = {
     { "sldb", "test Songlength.* database support", test_sldb },
@@ -205,6 +220,8 @@ static test_case_t cases[] = {
 /** \brief  Print usage message on stdout
  *
  * \param[in]   prg program name
+ *
+ * \ingroup hvsc_test
  */
 static void usage(const char *prg)
 {
@@ -225,7 +242,11 @@ static void usage(const char *prg)
 
 /** \brief  Test driver
  *
+ * Arguments: <test-case-name> <sid-file-path [<hvsc-root-dir>]
+ *
  * \return  EXIT_SUCCESS or EXIT_FAILURE
+ *
+ * \ingroup hvsc_test
  */
 int main(int argc, char *argv[])
 {
