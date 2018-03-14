@@ -64,14 +64,21 @@
  *  // Clean up properly
  *  hvsc_exit();
  * \endcode
+ *
+ * \ingroup main
  */
 bool hvsc_init(const char *path)
 {
+    hvsc_errno = 0;
     return hvsc_set_paths(path);
 }
 
 
 /** \brief  Clean up memory used by the library
+ *
+ * Free all memory used by the library.
+ *
+ * \ingroup main
  */
 void hvsc_exit(void)
 {
@@ -82,6 +89,8 @@ void hvsc_exit(void)
 /** \brief  Get library version string
  *
  * \return  version string: "maj.min.rev"
+ *
+ * \ingroup main
  */
 const char *hvsc_lib_version_str(void)
 {
@@ -94,6 +103,8 @@ const char *hvsc_lib_version_str(void)
  * \param[out]  major       major version number
  * \param[out]  minor       minor version number
  * \param[out]  revision    revision number
+ *
+ * \ingroup main
  */
 void hvsc_lib_version_num(int *major, int *minor, int *revision)
 {

@@ -1,13 +1,39 @@
 /* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
 
 /**
- * \mainpage    Main page
  *
  * \defgroup    main    Main module
  * \defgroup    sldb    Song length data support (Songlenghts.[md5|txt])
  * \defgroup    stil    SID Tune information List support (STIL.txt)
  * \defgroup    psid    PSID/RSID file support
  * \defgroup    base    Base functionality, mostly internal
+ *
+ *
+ * \mainpage    HVSClib main page
+ *
+ * \section     intro_sec   Introduction
+ *
+ * HVSClib is a library to work with files in the
+ * <a href="https://www.hvsc.c64.org/">High Voltage SID Collection</a> (HVSC),
+ * a collection of SID files (currently over 50,000). This library does not
+ * provide a way to play SID files (use ReSID or a sidplayer such as
+ * <a href="https://sourceforge.net/projects/vice-emu/">VICE</a>'s VSID for
+ * that).
+ * This library is meant to get information on SID files, either in the SID
+ * files themselves, or contained in other files, such as song lengths, trivia
+ * and eventual bugs.
+ *
+ * \subsection  modules_sec Modules
+ *
+ * The library consist of a few modules to access information:
+ *
+ * | module | API documentation
+ * |--------|--------------
+ * | main   | \ref main
+ * | sldb   | \ref sldb
+ * | stil   | \ref stil
+ * | psid   | \ref psid
+ *
  *
  *
  */
