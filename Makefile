@@ -21,7 +21,11 @@ VPATH = src:src/lib
 CC = gcc
 LD = gcc
 
-INSTALL_PREFIX=/usr/local
+# Installation prefix
+#
+# TODO: change to /usr/local once the 'install' recipe is properly written
+#
+PREFIX = /tmp
 
 CFLAGS = -Wall -Wextra -pedantic -std=c99 -Wshadow -Wpointer-arith \
 	 -Wcast-qual -Wcast-align -Wstrict-prototypes -Wmissing-prototypes \
@@ -41,6 +45,7 @@ CFLAGS = -Wall -Wextra -pedantic -std=c99 -Wshadow -Wpointer-arith \
 LDFLAGS = -shared
 SHARED_LIB = libhvsc.so
 STATIC_LIB = libhvsc.a
+LIB_HEADER = hvsc.h
 
 SRCS = src/lib/base.c src/lib/main.c src/lib/psid.c src/lib/sldb.c \
 	   src/lib/stil.c src/lib/bugs.c
@@ -51,6 +56,9 @@ OBJS = $(SRCS:.c=.o)
 
 TESTER = hvsc-test
 TESTER_OBJS = hvsc-test.o $(STATIC_LIB)
+
+LIB_SONAME = $(SHARED_LIB).$(VERSION_MAJ).$(VERSION_MIN)
+
 
 all: $(SHARED_LIB) $(STATIC_LIB) $(TESTER)
 
@@ -96,3 +104,13 @@ doc:
 .PHONY: distclean
 distclean: clean
 	rm -rfd doc/html/*
+
+.PHONY: install
+install:
+	mkdir -p $(PREFIX)/lib
+	mkdir -p $(PREFIX)/include
+	cp $(STATIC_LIB) $(PREFIX)/lib/
+	cp $(SHARED_LIB) $(PREFIX)/lib/$(LIB_SONAME)
+	ln -sf $(PREFIX)/lib/$(LIB_SONAME) $(PREFIX)/lib/$(SHARED_LIB)
+	cp src/lib/$(LIB_HEADER) $(PREFIX)/include/$(LIB_HEADER)
+
