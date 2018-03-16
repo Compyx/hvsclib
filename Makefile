@@ -10,6 +10,12 @@
 # Also a big thank you to Blacky Startdust of VICE Team for helping me with
 # creating both a static and a shared lib!
 #
+#
+
+# Library version number vars, these are passed to the code via defines
+VERSION_MAJ = 0
+VERSION_MIN = 0
+VERSION_REV = 99
 
 VPATH = src:src/lib
 CC = gcc
@@ -21,7 +27,13 @@ CFLAGS = -Wall -Wextra -pedantic -std=c99 -Wshadow -Wpointer-arith \
 	 -Wcast-qual -Wcast-align -Wstrict-prototypes -Wmissing-prototypes \
 	 -Wswitch -Wswitch-default -Wuninitialized -Wconversion \
 	 -Wredundant-decls -Wnested-externs -Wunreachable-code \
-	 -O3 -g -Isrc -Isrc/lib -DHVSC_DEBUG
+	 -O3 -g -Isrc -Isrc/lib -DHVSC_DEBUG \
+	 -DHVSC_LIB_VERSION_MAJ=$(VERSION_MAJ) \
+	 -DHVSC_LIB_VERSION_MIN=$(VERSION_MIN) \
+	 -DHVSC_LIB_VERSION_REV=$(VERSION_REV)
+
+
+
 
 # Only use this when defining HVSC_USE_MD5
 # LDFLAGS = -lgcrypt
@@ -40,13 +52,13 @@ OBJS = $(SRCS:.c=.o)
 TESTER = hvsc-test
 TESTER_OBJS = hvsc-test.o $(STATIC_LIB)
 
-all: shared_lib static_lib
+all: $(SHARED_LIB) $(STATIC_LIB) $(TESTER)
 
-shared_lib: $(SHOBJS)
+$(SHARED_LIB): $(SHOBJS)
 	$(CC) ${LDFLAGS} -o ${SHARED_LIB} $^
 
-static_lib: $(OBJS)
-	ar cru ${STATIC_LIB} $^
+$(STATIC_LIB): $(OBJS)
+	ar cr ${STATIC_LIB} $^
 	ranlib ${STATIC_LIB}
 
 $(TESTER): $(TESTER_OBJS)
@@ -61,7 +73,6 @@ $(TESTER): $(TESTER_OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
-all: $(TESTER) $(LIB_STATIC)
 
 # dependencies of the various objects, according to headers included
 base.o: base.h
@@ -75,7 +86,7 @@ stil.o: stil.h base.o
 clean:
 	rm -f *.o
 	rm -f *.os
-	rm -f $(TESTER) $(LIB)
+	rm -f $(TESTER) $(SHARED_LIB) $(STATIC_LIB)
 	rm -f *.sid
 
 .PHONY: doc

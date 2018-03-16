@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
 
     printf("Library version string = %s\n", hvsc_lib_version_str());
     hvsc_lib_version_num(&major, &minor, &revision);
-    printf("Libarry version number = %d, %d, %d\n", major, minor, revision);
+    printf("Library version number = %d, %d, %d\n", major, minor, revision);
 
     printf("Initializing .. ");
     if (!hvsc_init(hvsc_dir)) {

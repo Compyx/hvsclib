@@ -49,23 +49,29 @@
 /** \brief  Library version number major
  *
  * This number indicates API version, when this number changes it means there
- * are incompatible changes in the API.
+ * are incompatible changes in the API. Set via the Makefile.
  */
+#ifndef HSVC_LIB_VERSION_MAJ
 #define HVSC_LIB_VERSION_MAJ    0
+#endif
 
 /** \brief  Library version number minor
  *
  * This number indicates 'feature level', when this number changes, a feature
- * was added.
+ * was added. Set via the Makefile.
  */
-#define HVSC_LIB_VERSION_MIN    1
+#ifndef HVSC_LIB_VERSION_MIN
+#define HVSC_LIB_VERSION_MIN    0
+#endif
 
 /** \brief  Library version number revision
  *
  * This is the revision number, this indicates bug fixes/optimizations that do
- * not change the API, nor add functionality.
+ * not change the API, nor add functionality. Set via the Makefile
  */
+#ifndef HVSC_LIB_VERSION_REV
 #define HVSC_LIB_VERSION_REV    0
+#endif
 
 /** \brief  Library version string
  */
