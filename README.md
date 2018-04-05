@@ -40,10 +40,40 @@ if (!hvsclib_init("/home/compyx/HVSC")) {
 }
 ```
 
-After use, the library should be cleaned up with a call to `hvsc_exit()`, this will free any resource the libary used.
-```
+After use, the library should be cleaned up with a call to `hvsc_exit()`, this will free any resource the library used for its paths. Any other resources obtained from the library using other calls should still be free'd using the proper functions.
+```C
 #include <hvsc.h>
 
 hvsc_exit();
 ```
 
+#### Getting songlenghts for a SID
+
+The following function will get the songlengths for SID file *path*. *path* is expected to be a relative path inside the HVSC. For example: "MUSICIANS/H/Hubbard_Rob/Commando.sid".
+
+```C
+#include <hvsc.h>
+
+bool display_songlengths(const char *path)
+{
+    int i;
+    int num;
+    long *lengths;
+
+    printf("Retrieving song lengths of '%s'\n", path);
+    num = hvsc_sldb_get_lengths(path, &lengths);
+    if (num < 0) {
+        return false;
+    }
+    printf("OK: ");
+    printf("Got %d songs:\n", num);
+    for (i = 0; i < num; i++) {
+        printf("    %02ld:%02ld\n",
+                lengths[i] / 60, lengths[i] % 60);
+    }
+
+    free(lengths);
+}
+```
+
+In the example above `*lenghts'` is used to store a pointer to a list of `long int`s, each one a song length in seconds, while the return value of `hvsc_sldb_get_lengths()` is the number of elements in the list. When the function returns < 0, no song length info on the SID file was found (most likely the SID filename was incorrect).
