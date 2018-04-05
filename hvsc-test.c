@@ -134,6 +134,14 @@ static bool test_stil(const char *path)
         printf("Closing STIL\n");
         hvsc_stil_close(&stil);
     }
+
+    /* now test the shortcut function */
+
+    printf("Testing the shortcut function:\n");
+    hvsc_stil_get(&stil, path);
+    hvsc_stil_dump(&stil);
+    hvsc_stil_close(&stil);
+
     return true;
 }
 
