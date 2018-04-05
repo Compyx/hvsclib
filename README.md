@@ -10,9 +10,15 @@ This is currently very much a work in progress. Which means the API isn't stable
 
 #### Dependencies
 
-Currently, hvsclib has a single library-dependency: libgrypt20. The `Makefile` just assumes its there, so if you get compile errors, install libgcrypt20-dev. This libary is used to calculate the MD5 digest of a given SID file so the songlength data can be retrieved from `Songlengths.md5`. I may implement my own MD5 algorithm at some point to remove this dependency.
+<s>Currently, hvsclib has a single library-dependency: libgrypt20. The `Makefile` just assumes its there, so if you get compile errors, install libgcrypt20-dev. This libary is used to calculate the MD5 digest of a given SID file so the songlength data can be retrieved from `Songlengths.md5`. I may implement my own MD5 algorithm at some point to remove this dependency.<s/>
+The libgrycpt20 dependency has been removed, didn't make sense when using SIDs from the HVSC. (It can still be enabled, see the `Makefile`)
 
 To build the library, a proper C99-compliant compiler is required, as is GNU Make. The `Makefile` is written with GCC in mind, but it should be easily adjustable to Clang and perhaps others.
 
 To build the documentation, Doxygen is required, with graphviz to generate the call/caller graphs.
+
+
+### Basic usage
+
+The library has a single header file, `hvsc.h`. Just #include that and you should be good to go.
 
