@@ -79,3 +79,51 @@ bool display_song_lengths(const char *path)
 ```
 
 In the example above `*lengths'` is used to store a pointer to a list of `long int`s, each one a song length in seconds, while the return value of `hvsc_sldb_get_lengths()` is the number of elements in the list. When the function returns < 0, no song length info on the SID file was found (most likely the SID filename was incorrect, but theoretically, a call to malloc(3) could have failed, check `hvsc_errno` to be sure).
+
+
+#### Getting STIL info
+
+The STIL (SID Tune Information List) is a file with some extra information on some SID tunes, such as if a tune is a cover of anoher tune (either SID or popular music).
+
+```C
+bool display_stil_info(const char *path)
+{
+    hvsc_stil_t stil;
+    hvsc_stil_tune_entry_t tune_entry;
+
+    /* look for `path` in the STIL */
+    if (!hvsc_stil_open(path, &stil)) {
+        hvsc_perror("oeps");
+        return false;
+    }
+
+    /* read STIL entry */
+    if (!hvsc_stil_read_entry(&stil)) {
+        hvsc_perror("oeps");
+        hvsc_stil_close(&stil);
+        return false;
+    }
+
+    /* parse stil entry */
+    if (!hvsc_stil_parse_entry(&stil)) {
+        hvsc_perror("oeps");
+        hvsc_stil_close(&stil);
+        return false;
+    }
+
+    /* dump stil full tune entry */
+    hvsc_stil_dump(&stil);
+
+    /* get a specific tune entry (in this case #3): */
+    if (!hvsc_stil_get_tune_entry(&stil, &tune_entry, 3)) {
+        hvsc_perror("Failed");
+        hvsc_stil_close(&stil);
+        return false;
+    }
+    hvsc_stil_dump_tune_entry(&tune_entry);
+    
+    return true;
+}
+```
+
+**TODO**: combine `hvsc_stil_open()`, `hvsc_stil_read_entry()` and `hvsc_stil_parse_entry()` into a single function.
