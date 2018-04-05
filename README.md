@@ -47,14 +47,16 @@ After use, the library should be cleaned up with a call to `hvsc_exit()`, this w
 hvsc_exit();
 ```
 
-#### Getting songlenghts for a SID
+#### Getting song lengths for a SID
 
-The following function will get the songlengths for SID file *path*. *path* is expected to be a relative path inside the HVSC. For example: "MUSICIANS/H/Hubbard_Rob/Commando.sid".
+Probably the most important function of the library is to retrieve song lengths, the duration of each (sub)tune. This information will allow a SID player to skip to the next song.
+
+The following function will get the song lengths for SID file *path*. *path* is expected to be a relative path inside the HVSC. For example: "MUSICIANS/H/Hubbard_Rob/Commando.sid".
 
 ```C
 #include <hvsc.h>
 
-bool display_songlengths(const char *path)
+bool display_song_lengths(const char *path)
 {
     int i;
     int num;
@@ -76,4 +78,4 @@ bool display_songlengths(const char *path)
 }
 ```
 
-In the example above `*lenghts'` is used to store a pointer to a list of `long int`s, each one a song length in seconds, while the return value of `hvsc_sldb_get_lengths()` is the number of elements in the list. When the function returns < 0, no song length info on the SID file was found (most likely the SID filename was incorrect).
+In the example above `*lengths'` is used to store a pointer to a list of `long int`s, each one a song length in seconds, while the return value of `hvsc_sldb_get_lengths()` is the number of elements in the list. When the function returns < 0, no song length info on the SID file was found (most likely the SID filename was incorrect, but theoretically, a call to malloc(3) could have failed, check `hvsc_errno` to be sure).
