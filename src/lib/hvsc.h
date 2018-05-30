@@ -276,7 +276,6 @@ typedef struct hvsc_psid_s {
 
 bool        hvsc_init(const char *path);
 void        hvsc_exit(void);
-
 const char *hvsc_lib_version_str(void);
 void        hvsc_lib_version_num(int *major, int *minor, int *revision);
 
@@ -312,6 +311,14 @@ bool        hvsc_stil_read_entry(hvsc_stil_t *handle);
 void        hvsc_stil_dump_entry(hvsc_stil_t *handle);
 bool        hvsc_stil_parse_entry(hvsc_stil_t *handle);
 void        hvsc_stil_dump(hvsc_stil_t *handle);
+
+/* XXX: needs much better name
+ *
+ * This combines calls of stil_open(), stil_read_entry() and stil_parse_entry()
+ * It's probably best to make those functions static and leave this one.
+ * */
+bool        hvsc_stil_get(hvsc_stil_t *stil, const char *path);
+
 bool        hvsc_stil_get_tune_entry(const hvsc_stil_t *handle,
                                      hvsc_stil_tune_entry_t *entry,
                                      int tune);

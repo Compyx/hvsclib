@@ -1125,4 +1125,35 @@ void hvsc_stil_dump_tune_entry(const hvsc_stil_tune_entry_t *entry)
 }
 
 
+/** \brief  Retrieve full STIL info on \a path
+ *
+ * Get full STIL info PSID file \a path.
+ *
+ * \param[in,out]   stil    STIL handle
+ * \param[in]       path    path to PSID file, relative to HVSC root dir
+ *
+ * \return  true if STIL info found and parsed
+ */
+bool hvsc_stil_get(hvsc_stil_t *stil, const char *path)
+{
+    /* find STIL.txt entry */
+    if (!hvsc_stil_open(path, stil)) {
+        return false;
+    }
+
+    /* read all text lines related to the entry */
+    if (!hvsc_stil_read_entry(stil)) {
+        hvsc_stil_close(stil);
+        return false;
+    }
+
+    /* parse text */
+    if (!hvsc_stil_parse_entry(stil)) {
+        hvsc_stil_close(stil);
+        return false;
+    }
+
+    return true;
+}
+
 

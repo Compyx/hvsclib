@@ -134,6 +134,14 @@ static bool test_stil(const char *path)
         printf("Closing STIL\n");
         hvsc_stil_close(&stil);
     }
+
+    /* now test the shortcut function */
+
+    printf("Testing the shortcut function:\n");
+    hvsc_stil_get(&stil, path);
+    hvsc_stil_dump(&stil);
+    hvsc_stil_close(&stil);
+
     return true;
 }
 
@@ -273,7 +281,7 @@ int main(int argc, char *argv[])
 
     printf("Library version string = %s\n", hvsc_lib_version_str());
     hvsc_lib_version_num(&major, &minor, &revision);
-    printf("Libarry version number = %d, %d, %d\n", major, minor, revision);
+    printf("Library version number = %d, %d, %d\n", major, minor, revision);
 
     printf("Initializing .. ");
     if (!hvsc_init(hvsc_dir)) {

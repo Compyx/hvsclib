@@ -1,0 +1,16 @@
+/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen : */
+
+/** \ingroup    main
+  * \page       main_page
+  *
+  * \section    main_intro_sec  Introduction
+  *
+  * This module handles the main library functions, such as initializing the
+  * library and cleaning up after it after use.
+  *
+  * \section    main_api_sec    API
+  *
+  * The API of the main module has only a few functions:
+  *
+  * \ref hvsc_init and \ref hvsc_exit
+  */
