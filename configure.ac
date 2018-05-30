@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([libhvsc], [1.0.0], [b.wassink@ziggo.nl])
-AC_CONFIG_SRCDIR([src/bin/hvsc_test.c])
+AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE
 
@@ -12,9 +12,12 @@ AC_PROG_CPP
 AC_PROG_CC_C99
 AC_PROG_RANLIB
 
+AC_LANG([C])
+
 # Checks for libraries.
 
 # Checks for header files.
+AC_HEADER_STDC
 AC_CHECK_HEADERS([inttypes.h limits.h stdint.h stdlib.h string.h])
 
 # Checks for typedefs, structures, and compiler characteristics.

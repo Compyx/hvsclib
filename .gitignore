@@ -3,7 +3,7 @@
 *.os
 *.sid
 
-hvsc-test
+hvsc_test
 *.swp
 *~
 /doc/doxygen/html/

@@ -1,6 +1,12 @@
-AM_CFLAGS = I$(top_srcdir)/src/lib
+AM_CFLAGS = -I$(top_srcdir)/src/lib
 
-bin_PROGRAMS = hvsc_test
-hvsc_test_SOURCES = hvsc_test.c
+noinst_LIBRARIES = libhvsc.a
+noinst_HEADERS = 
 
-
+libhvsc_a_SOURCES = \
+					base.c \
+					bugs.c \
+					main.c \
+					psid.c \
+					sldb.c \
+					stil.c
