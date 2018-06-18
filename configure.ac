@@ -1,7 +1,6 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
 AC_INIT([libhvsc], [1.0.0], [b.wassink@ziggo.nl])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
@@ -20,17 +19,6 @@ AC_LANG([C])
 AC_HEADER_STDC
 AC_CHECK_HEADERS([inttypes.h limits.h stdint.h stdlib.h string.h])
 
-# Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_HEADER_STDBOOL
-AC_TYPE_SIZE_T
-AC_TYPE_UINT16_T
-AC_TYPE_UINT32_T
-AC_TYPE_UINT8_T
-
-# Checks for library functions.
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
-AC_CHECK_FUNCS([memset strerror strtol])
 
 AC_CONFIG_FILES([Makefile
                  src/bin/Makefile
