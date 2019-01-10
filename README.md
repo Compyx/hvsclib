@@ -2,6 +2,10 @@
 
 ## A library to work with HVSC (High Voltage SID Collection) files
 
+### NOTE: currently out of sync with VICE
+
+For a more up-to-date version of the library, check out VICE trunk and compare the files in the src/hvsc/ directory with the files here.
+
 ### Introduction
 
 This library is mostly meant for SID players to retrieve data from the `Songlengths.md5`, `STIL.txt` and `BUGlist.txt` files in `/DOCUMENTS/` directory of the HVSC. The song length data can be used by a player to skip to the next sub tune in a SID, rather than looping forever, and the STIL and BUGlist data contain extra information on SIDs, such as commments by the original composers and information on if a SID (sub)tune covers another SID (sub)tune or music from another medium.
